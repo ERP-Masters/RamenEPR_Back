@@ -1,15 +1,201 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+//
+// 창고 / 재고 관리
+//
+model Warehouse {
+  warehouseId Int         @id @default(autoincrement())
+  name        String
+  location    String?
+  createdAt   DateTime    @default(now())
+  inventories Inventory[]
+}
+
+model Inventory {
+  inventoryId Int             @id @default(autoincrement())
+  warehouseId Int
+  itemId      Int
+  quantity    Int
+  safetyStock Int             @default(0)
+  expiryDate  DateTime?
+  status      InventoryStatus @default(NORMAL)
+  updatedAt   DateTime        @updatedAt
+
+  warehouse Warehouse @relation(fields: [warehouseId], references: [warehouseId])
+  item      Item      @relation(fields: [itemId], references: [itemId])
+}
+
+enum InventoryStatus {
+  NORMAL // 정상
+  EXPIRE_SOON // 폐기예정
+  DISCARDED // 폐기완료
+}
+
+//
+// 품목 관리
+//
+model Item {
+  itemId       Int            @id @default(autoincrement())
+  name         String
+  category     String?
+  unit         String
+  createdAt    DateTime       @default(now())
+  inventories  Inventory[]
+  orders       OrderRequest[]
+  vendorOrders VendorOrder[]
+  lots         LotTrace[]
+}
+
+model OrderRequest {
+  orderId   Int         @id @default(autoincrement())
+  branchId  Int
+  itemId    Int
+  quantity  Int
+  status    OrderStatus @default(PENDING)
+  createdAt DateTime    @default(now())
+
+  branch   Branch    @relation(fields: [branchId], references: [branchId])
+  item     Item      @relation(fields: [itemId], references: [itemId])
+  shipment Shipment?
+}
+
+enum OrderStatus {
+  PENDING // 대기
+  APPROVED // 승인
+  SHIPPING // 배송중
+  DONE // 완료
+}
+
+model VendorOrder {
+  vendorOrderId Int         @id @default(autoincrement())
+  vendorId      Int
+  itemId        Int
+  quantity      Int
+  status        OrderStatus @default(PENDING)
+  createdAt     DateTime    @default(now())
+
+  vendor Vendor @relation(fields: [vendorId], references: [vendorId])
+  item   Item   @relation(fields: [itemId], references: [itemId])
+}
+
+model Shipment {
+  shipmentId     Int            @id @default(autoincrement())
+  orderId        Int            @unique
+  shippedDate    DateTime?
+  deliveryStatus DeliveryStatus @default(PENDING)
+
+  order    OrderRequest @relation(fields: [orderId], references: [orderId])
+  delivery Delivery?
+  lots     LotTrace[]
+}
+
+enum DeliveryStatus {
+  PENDING // 대기
+  SHIPPING // 배송중
+  COMPLETED // 완료
+}
+
+model LotTrace {
+  lotId           Int       @id @default(autoincrement())
+  itemId          Int
+  manufactureDate DateTime?
+  expiryDate      DateTime?
+  shipmentId      Int?
+
+  item     Item      @relation(fields: [itemId], references: [itemId])
+  shipment Shipment? @relation(fields: [shipmentId], references: [shipmentId])
+}
+
+//
+// 직영점 관리
+//
+model Branch {
+  branchId    Int             @id @default(autoincrement())
+  name        String
+  type        BranchType
+  location    String?
+  createdAt   DateTime        @default(now())
+  orders      OrderRequest[]
+  sales       BranchSales[]
+  hygieneLogs BranchHygiene[]
+}
+
+enum BranchType {
+  DIRECT // 직영점
+  FRANCHISE // 가맹점
+}
+
+model BranchSales {
+  salesId  Int      @id @default(autoincrement())
+  branchId Int
+  date     DateTime
+  revenue  Decimal  @default(0.00)
+  profit   Decimal  @default(0.00)
+
+  branch Branch @relation(fields: [branchId], references: [branchId])
+}
+
+model BranchHygiene {
+  hygieneId      Int          @id @default(autoincrement())
+  branchId       Int
+  grade          HygieneGrade
+  inspectorName  String
+  inspectionDate DateTime
+
+  branch Branch @relation(fields: [branchId], references: [branchId])
+}
+
+enum HygieneGrade {
+  A
+  B
+  C
+}
+
+//
+// 거래처 관리
+//
+model Vendor {
+  vendorId Int             @id @default(autoincrement())
+  name     String
+  contact  String?
+  address  String?
+  orders   VendorOrder[]
+  payments VendorPayment[]
+}
+
+model VendorPayment {
+  paymentId   Int           @id @default(autoincrement())
+  vendorId    Int
+  amount      Decimal
+  paymentDate DateTime
+  status      PaymentStatus @default(PENDING)
+
+  vendor Vendor @relation(fields: [vendorId], references: [vendorId])
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+}
+
+//
+// 배송 관리
+//
+model Delivery {
+  deliveryId      Int            @id @default(autoincrement())
+  shipmentId      Int            @unique
+  deliveryCompany String?
+  trackingNumber  String?
+  deliveredDate   DateTime?
+  status          DeliveryStatus @default(PENDING)
+
+  shipment Shipment @relation(fields: [shipmentId], references: [shipmentId])
 }

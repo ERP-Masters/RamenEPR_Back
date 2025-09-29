@@ -2,7 +2,7 @@ import { IsNotEmpty, IsString, IsEnum, IsEmail, IsEmpty } from "class-validator"
 import { Unit } from "@prisma/client";
 import { Injectable } from "@nestjs/common";
 
-@Injectable
+
 export class CreateCategoryDto {
     @IsString()
     @IsEmpty()

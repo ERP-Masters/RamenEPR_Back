@@ -1,156 +1,219 @@
-generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
-}
+// schema.prisma
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-//
-// 창고 / 재고 관리
-//
+generator client {
+  provider = "prisma-client-js"
+}
+
+/// 창고
 model Warehouse {
-  warehouseId Int         @id @default(autoincrement())
-  name        String
-  location    String?
-  createdAt   DateTime    @default(now())
-  inventories Inventory[]
-}
-
-model Inventory {
-  inventoryId Int             @id @default(autoincrement())
-  warehouseId Int
-  itemId      Int
-  quantity    Int
-  safetyStock Int             @default(0)
-  expiryDate  DateTime?
-  status      InventoryStatus @default(NORMAL)
-  updatedAt   DateTime        @updatedAt
-
-  warehouse Warehouse @relation(fields: [warehouseId], references: [warehouseId])
-  item      Item      @relation(fields: [itemId], references: [itemId])
-}
-
-enum InventoryStatus {
-  NORMAL // 정상
-  EXPIRE_SOON // 폐기예정
-  DISCARDED // 폐기완료
-}
-
-//
-// 품목 관리
-//
-model Item {
-  itemId       Int            @id @default(autoincrement())
+  warehouse_id Int         @id @default(autoincrement())
   name         String
-  category     String?
-  unit         String
-  createdAt    DateTime       @default(now())
-  inventories  Inventory[]
-  orders       OrderRequest[]
-  vendorOrders VendorOrder[]
-  lots         LotTrace[]
+  location     String
+  created_at   DateTime    @default(now())
+
+  inventory    Inventory[]
 }
 
-model OrderRequest {
-  orderId   Int         @id @default(autoincrement())
-  branchId  Int
-  itemId    Int
-  quantity  Int
-  status    OrderStatus @default(PENDING)
-  createdAt DateTime    @default(now())
+/// 재고
+model Inventory {
+  inventory_id Int       @id @default(autoincrement())
+  warehouse_id Int
+  item_id      String    // FK → Item.item_id
+  quantity     Int
+  safety_stock Int
+  store_date   DateTime
+  expiry_date  DateTime
+  status       InventoryStatus
+  updated_at   DateTime  @updatedAt
 
-  branch   Branch    @relation(fields: [branchId], references: [branchId])
-  item     Item      @relation(fields: [itemId], references: [itemId])
-  shipment Shipment?
+  warehouse    Warehouse @relation(fields: [warehouse_id], references: [warehouse_id])
+  item         Item      @relation(fields: [item_id], references: [item_id])
+}
+
+/// 품목
+model Item {
+  id           Int      @id @default(autoincrement()) // 내부 PK
+  item_id      String   @unique                      // 비즈니스 키 (ITEM_001)
+  category_id  Int
+  name         String
+  unit         Unit
+  unit_price   Int
+  expiry_date  DateTime
+  created_at   DateTime @default(now())
+
+  inventory    Inventory[]
+  orderRequest OrderRequest[]
+  vendorOrders VendorOrder[]
+  lotTraces    LotTrace[]
+
+  category     Category  @relation(fields: [category_id], references: [category_id])
+}
+
+/// 지점 발주
+model OrderRequest {
+  order_id   Int          @id @default(autoincrement())
+  branch_id  Int
+  item_id    String       // FK → Item.item_id
+  quantity   Int
+  status     OrderStatus
+  created_at DateTime     @default(now())
+
+  branch     Branch       @relation(fields: [branch_id], references: [branch_id])
+  item       Item         @relation(fields: [item_id], references: [item_id])
+  shipment   Shipment?
+}
+
+/// 거래처 발주
+model VendorOrder {
+  vendor_order_id Int        @id @default(autoincrement())
+  vendor_id       Int
+  item_id         String     // FK → Item.item_id
+  quantity        Int
+  status          OrderStatus
+  created_at      DateTime   @default(now())
+
+  vendor          Vendor     @relation(fields: [vendor_id], references: [vendor_id])
+  item            Item       @relation(fields: [item_id], references: [item_id])
+}
+
+/// 출하
+model Shipment {
+  shipment_id     Int           @id @default(autoincrement())
+  order_id        Int   @unique
+  shipped_date    DateTime
+  delivery_status DeliveryStatus
+
+  orderRequest    OrderRequest  @relation(fields: [order_id], references: [order_id])
+  lotTraces       LotTrace[]
+  delivery        Delivery?
+}
+
+/// LOT 추적
+model LotTrace {
+  lot_id           Int        @id @default(autoincrement())
+  item_id          String     // FK → Item.item_id
+  manufacture_date DateTime
+  expiry_date      DateTime
+  shipment_id      Int?
+
+  item             Item       @relation(fields: [item_id], references: [item_id])
+  shipment         Shipment?  @relation(fields: [shipment_id], references: [shipment_id])
+}
+
+/// 카테고리
+model Category {
+  category_id   Int    @id @default(autoincrement())
+  group         CategoryGroup
+  category_name String
+  created_at    DateTime   @default(now())
+
+  items         Item[]
+}
+
+/// 지점
+model Branch {
+  branch_id   Int          @id @default(autoincrement())
+  name        String
+  type        BranchType
+  location    String
+  created_at  DateTime     @default(now())
+
+  orderRequest  OrderRequest[]
+  sales         BranchSales[]
+  hygieneChecks BranchHygiene[]
+}
+
+/// 지점 매출
+model BranchSales {
+  sales_id  Int      @id @default(autoincrement())
+  branch_id Int
+  date      DateTime
+  revenue   Decimal
+  profit    Decimal
+
+  branch    Branch   @relation(fields: [branch_id], references: [branch_id])
+}
+
+/// 위생 점검
+model BranchHygiene {
+  hygiene_id      Int      @id @default(autoincrement())
+  branch_id       Int
+  grade           HygieneGrade
+  inspector_name  String
+  inspection_date DateTime
+
+  branch          Branch   @relation(fields: [branch_id], references: [branch_id])
+}
+
+/// 거래처
+model Vendor {
+  vendor_id   Int             @id @default(autoincrement())
+  name        String
+  manager     String
+  contact     String
+  address     String
+
+  vendorOrders VendorOrder[]
+  payments     VendorPayment[]
+}
+
+/// 거래처 결제
+model VendorPayment {
+  payment_id   Int      @id @default(autoincrement())
+  vendor_id    Int
+  amount       Decimal
+  payment_date DateTime
+  status       PaymentStatus
+
+  vendor       Vendor   @relation(fields: [vendor_id], references: [vendor_id])
+}
+
+/// 배송
+model Delivery {
+  delivery_id      Int      @id @default(autoincrement())
+  shipment_id      Int  @unique
+  delivery_company String
+  tracking_number  String
+  delivered_date   DateTime
+  status           DeliveryStatus
+
+  shipment         Shipment @relation(fields: [shipment_id], references: [shipment_id])
+}
+
+//
+// ENUMS
+//
+enum InventoryStatus {
+  NORMAL
+  EXPIRING
+  DISCARDED
+}
+
+enum Unit {
+  PACK
+  CONTAINER
+  TRAY
+  KG
+  BOX
+  CAN
 }
 
 enum OrderStatus {
-  PENDING // 대기
-  APPROVED // 승인
-  SHIPPING // 배송중
-  DONE // 완료
-}
-
-model VendorOrder {
-  vendorOrderId Int         @id @default(autoincrement())
-  vendorId      Int
-  itemId        Int
-  quantity      Int
-  status        OrderStatus @default(PENDING)
-  createdAt     DateTime    @default(now())
-
-  vendor Vendor @relation(fields: [vendorId], references: [vendorId])
-  item   Item   @relation(fields: [itemId], references: [itemId])
-}
-
-model Shipment {
-  shipmentId     Int            @id @default(autoincrement())
-  orderId        Int            @unique
-  shippedDate    DateTime?
-  deliveryStatus DeliveryStatus @default(PENDING)
-
-  order    OrderRequest @relation(fields: [orderId], references: [orderId])
-  delivery Delivery?
-  lots     LotTrace[]
+  PENDING
+  APPROVED
+  SHIPPING
+  COMPLETED
 }
 
 enum DeliveryStatus {
-  PENDING // 대기
-  SHIPPING // 배송중
-  COMPLETED // 완료
-}
-
-model LotTrace {
-  lotId           Int       @id @default(autoincrement())
-  itemId          Int
-  manufactureDate DateTime?
-  expiryDate      DateTime?
-  shipmentId      Int?
-
-  item     Item      @relation(fields: [itemId], references: [itemId])
-  shipment Shipment? @relation(fields: [shipmentId], references: [shipmentId])
-}
-
-//
-// 직영점 관리
-//
-model Branch {
-  branchId    Int             @id @default(autoincrement())
-  name        String
-  type        BranchType
-  location    String?
-  createdAt   DateTime        @default(now())
-  orders      OrderRequest[]
-  sales       BranchSales[]
-  hygieneLogs BranchHygiene[]
-}
-
-enum BranchType {
-  DIRECT // 직영점
-  FRANCHISE // 가맹점
-}
-
-model BranchSales {
-  salesId  Int      @id @default(autoincrement())
-  branchId Int
-  date     DateTime
-  revenue  Decimal  @default(0.00)
-  profit   Decimal  @default(0.00)
-
-  branch Branch @relation(fields: [branchId], references: [branchId])
-}
-
-model BranchHygiene {
-  hygieneId      Int          @id @default(autoincrement())
-  branchId       Int
-  grade          HygieneGrade
-  inspectorName  String
-  inspectionDate DateTime
-
-  branch Branch @relation(fields: [branchId], references: [branchId])
+  PENDING
+  SHIPPING
+  COMPLETED
 }
 
 enum HygieneGrade {
@@ -159,26 +222,9 @@ enum HygieneGrade {
   C
 }
 
-//
-// 거래처 관리
-//
-model Vendor {
-  vendorId Int             @id @default(autoincrement())
-  name     String
-  contact  String?
-  address  String?
-  orders   VendorOrder[]
-  payments VendorPayment[]
-}
-
-model VendorPayment {
-  paymentId   Int           @id @default(autoincrement())
-  vendorId    Int
-  amount      Decimal
-  paymentDate DateTime
-  status      PaymentStatus @default(PENDING)
-
-  vendor Vendor @relation(fields: [vendorId], references: [vendorId])
+enum BranchType {
+  DIRECT
+  FRANCHISE
 }
 
 enum PaymentStatus {
@@ -186,16 +232,16 @@ enum PaymentStatus {
   COMPLETED
 }
 
-//
-// 배송 관리
-//
-model Delivery {
-  deliveryId      Int            @id @default(autoincrement())
-  shipmentId      Int            @unique
-  deliveryCompany String?
-  trackingNumber  String?
-  deliveredDate   DateTime?
-  status          DeliveryStatus @default(PENDING)
-
-  shipment Shipment @relation(fields: [shipmentId], references: [shipmentId])
+enum CategoryGroup {
+  MEAT
+  SEAFOOD
+  NOODLES
+  VEGETABLES
+  DAIRY
+  EGGS
+  PROCESSED
+  SAUCES
+  SEASONINGS
+  SOUPS
+  BROTH_BASEmy
 }

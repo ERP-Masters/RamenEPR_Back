@@ -14,9 +14,9 @@ export class CreateItemDto {
     @IsNotEmpty()
     name: string;
 
-    @IsEnum(Unit)
+    @IsInt()
     @IsNotEmpty()
-    unit: Unit;
+    unit_id: number;
 
     @IsInt()
     @IsNotEmpty()

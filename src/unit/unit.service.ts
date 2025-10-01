@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { UnitRepository } from "./unit.repository";
+import { UnitRepository } from "./repository/unit.repository";
 import { CreateUnitDto } from "./dto/create-unit.dto";
 import { UpdateUnitDto } from "./dto/update-unit.dto";
 import { UnitEntity } from "./entities/unit.entity";

@@ -5,10 +5,11 @@ import { PrismaModule } from "./database/prisma.module";
 import { VendorModule } from './vendor/vendor.module';
 import { CategoryModule } from './category/category.modules';
 import { UnitModule } from './unit/unit.module';
+import { ItemModule } from './item/item.modules';
 
 @Module({
   imports: [ PrismaModule, VendorModule, CategoryModule,
-    UnitModule
+    UnitModule, ItemModule
   ],
   controllers: [AppController],
   providers: [AppService],

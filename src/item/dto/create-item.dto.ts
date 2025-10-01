@@ -27,5 +27,5 @@ export class CreateItemDto {
 
     @IsInt()
     @IsNotEmpty()
-    vender_id: number;
+    vendor_id: number;
 }

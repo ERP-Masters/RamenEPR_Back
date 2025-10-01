@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../database/prisma.service";
-import { UnitEntity } from "./entities/unit.entity";
-import { CreateUnitDto } from "./dto/create-unit.dto";
-import { UpdateUnitDto } from "./dto/update-unit.dto";
+import { PrismaService } from "../../database/prisma.service";
+import { UnitEntity } from "../entities/unit.entity";
+import { CreateUnitDto } from "../dto/create-unit.dto";
+import { UpdateUnitDto } from "../dto/update-unit.dto";
 
 @Injectable()
 export class UnitRepository {

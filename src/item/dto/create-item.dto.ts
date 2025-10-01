@@ -1,12 +1,11 @@
 import { IsString, IsInt, IsEnum, IsDateString, IsNotEmpty } from 'class-validator';
-import { Unit } from '@prisma/client';
 
 export class CreateItemDto { 
     @IsString()
     @IsNotEmpty()
-    item_id: string;
+    item_id: string; //내부 아이디, ITEM_001 같은 의미
 
-    @IsString()
+    @IsInt()
     @IsNotEmpty()
     category_id: number;
         
@@ -28,5 +27,5 @@ export class CreateItemDto {
 
     @IsInt()
     @IsNotEmpty()
-    vender_id: number;
+    vendor_id: number;
 }

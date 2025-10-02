@@ -6,10 +6,11 @@ import { VendorModule } from './vendor/vendor.module';
 import { CategoryModule } from './category/category.modules';
 import { UnitModule } from './unit/unit.module';
 import { ItemModule } from './item/item.modules';
+import { WarehouseModule } from './warehouse/warehouse.module';
 
 @Module({
   imports: [ PrismaModule, VendorModule, CategoryModule,
-    UnitModule, ItemModule
+    UnitModule, ItemModule, WarehouseModule
   ],
   controllers: [AppController],
   providers: [AppService],

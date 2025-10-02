@@ -17,6 +17,11 @@ export class VendorController {
     return this.vendorService.findAll();
   }
 
+  @Get('summary')
+  async findsummary() {
+    return this.vendorService.findIdAndName();
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.vendorService.findOne(+id);

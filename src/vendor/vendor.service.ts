@@ -3,11 +3,12 @@ import { VendorRepository } from "./repository/vendor.repository";
 import { CreateVendorDto } from "./dto/create-vendor.dto";
 import { VendorEntity } from "./entities/vendor.entity";
 import { UpdateVendorDto } from "./dto/update-vendor.dto";
+import { ResponseVendorDto } from "./dto/reponse-vendor.dto";
 
 @Injectable()
 export class VendorService {
     //의존성 주입
-    constructor(private readonly vendorRepository: VendorRepository) {}
+    constructor(private readonly vendorRepository: VendorRepository) { }
 
     async create(dto: CreateVendorDto): Promise<VendorEntity> {
         return this.vendorRepository.create(dto);
@@ -17,12 +18,16 @@ export class VendorService {
         return this.vendorRepository.findAll();
     }
 
+    async findIdAndName(): Promise<ResponseVendorDto[]> {
+        return this.vendorRepository.findIdAndName();
+    }
+
     async findOne(id: number): Promise<VendorEntity> {
         const vendor = await this.vendorRepository.findOne(id);
         if (!vendor) throw new NotFoundException("Not found Vendor");
         else return vendor;
     }
-    
+
     async update(id: number, dto: UpdateVendorDto): Promise<VendorEntity> {
         return this.vendorRepository.update(id, dto);
     }

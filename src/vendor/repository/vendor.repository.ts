@@ -3,6 +3,7 @@ import { PrismaService } from "../../database/prisma.service"
 import { VendorEntity } from "../entities/vendor.entity";
 import { CreateVendorDto } from "../dto/create-vendor.dto";
 import { UpdateItemDto } from "src/item/dto/update-item.dto";
+import { ResponseVendorDto } from "../dto/reponse-vendor.dto";
 
 @Injectable()
 export class VendorRepository {
@@ -11,15 +12,36 @@ export class VendorRepository {
     //Create Vendor
     async create(data: CreateVendorDto): Promise<VendorEntity> {
         const vendor = await this.prisma.vendor.create({ data });
-        return new VendorEntity(vendor.vendor_id, vendor.name, vendor.manager, vendor.contact, vendor.address);
+        return new VendorEntity(
+            vendor.vendor_id, 
+            vendor.name, 
+            vendor.manager, 
+            vendor.contact, 
+            vendor.address
+        );
     }
     
     //find All Vendor
-    async findAll(): Promise<VendorEntity[]>{
+    async findAll(): Promise<VendorEntity[]> {
         const vendors = await this.prisma.vendor.findMany();
         return vendors.map(
-            v => new VendorEntity(v.vendor_id, v.name, v.manager, v.contact, v. address)
+            v => 
+                new VendorEntity(
+                    v.vendor_id, 
+                    v.name, 
+                    v.manager, 
+                    v.contact, 
+                    v.address
+                )
         );
+    }
+
+    async findIdAndName(): Promise<ResponseVendorDto[]> {
+        return this.prisma.vendor.findMany({
+            select: {
+                vendor_id: true, name: true
+            },
+        })
     }
 
     //Find a specific vendor by ID.
@@ -28,7 +50,12 @@ export class VendorRepository {
             where: { vendor_id: id }
         });
         return vendor ? 
-        new VendorEntity(vendor.vendor_id, vendor.name, vendor.manager, vendor.contact, vendor.address) : null;
+        new VendorEntity(
+            vendor.vendor_id, 
+            vendor.name, 
+            vendor.manager, 
+            vendor.contact, 
+            vendor.address) : null;
     }
 
     //update vendor info.
@@ -37,7 +64,13 @@ export class VendorRepository {
             where: { vendor_id: id }, 
             data
         });
-        return new VendorEntity(vendor.vendor_id, vendor.name, vendor.manager, vendor.contact, vendor.address);
+        return new VendorEntity(
+            vendor.vendor_id, 
+            vendor.name, 
+            vendor.manager, 
+            vendor.contact, 
+            vendor.address
+        );
     }
 
     //Remove specific vender

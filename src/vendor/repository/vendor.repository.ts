@@ -11,6 +11,7 @@ export class VendorRepository {
 
     //Create Vendor
     async create(data: CreateVendorDto): Promise<VendorEntity> {
+
         const vendor = await this.prisma.vendor.create({ data });
         return new VendorEntity(
             vendor.vendor_id, 
@@ -23,6 +24,7 @@ export class VendorRepository {
     
     //find All Vendor
     async findAll(): Promise<VendorEntity[]> {
+        //SELECT * FROM vendor;
         const vendors = await this.prisma.vendor.findMany();
         return vendors.map(
             v => 

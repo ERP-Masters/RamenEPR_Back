@@ -137,6 +137,7 @@ model Branch {
   name       String
   location   String
   store_oner String
+  contact    String
   created_at DateTime   @default(now())
 
   orderRequest  OrderRequest[]

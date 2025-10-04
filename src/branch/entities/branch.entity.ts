@@ -6,5 +6,6 @@ export class BranchEntity {
         public readonly detail_address: string,
         public readonly store_owner: string,
         public readonly contact: string,
+        public readonly created_at: Date,
     ) {}
 }

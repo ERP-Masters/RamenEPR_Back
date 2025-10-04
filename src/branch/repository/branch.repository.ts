@@ -23,15 +23,56 @@ export class BranchRepository {
     async findAll(): Promise<BranchEntity[]> {
         const branchs = await this.prisma.branch.findMany();
         return branchs.map(
-            b => 
+            b =>
                 new BranchEntity(
                     b.branch_id,
                     b.name,
                     b.location,
                     b.detail_address,
-                    b.store_oner,
+                    b.store_owner,
                     b.contact
                 )
+        );
+    }
+    async findByBName(bname: string): Promise<BranchEntity[]> {
+        const branches = await this.prisma.branch.findMany({
+            where: {
+                name: bname,   // ✅ 세미콜론 제거
+            },
+        });
+        return branches.map(
+            (b) =>
+                new BranchEntity(
+                    b.branch_id,
+                    b.name,
+                    b.location,
+                    b.detail_address,
+                    b.store_owner,
+                    b.contact
+                ),
+        );
+    }
+
+    async findByLocationOrDetail(loc: string): Promise<BranchEntity[]> {
+        const branches = await this.prisma.branch.findMany({
+            where: {
+                OR: [
+                    { location: { contains: loc } },        // 위치 포함 검색
+                    { detail_address: { contains: loc } },  // 상세 주소 포함 검색
+                ],
+            },
+        });
+
+        return branches.map(
+            (b) =>
+                new BranchEntity(
+                    b.branch_id,
+                    b.name,
+                    b.location,
+                    b.detail_address,
+                    b.store_owner,
+                    b.contact
+                ),
         );
     }
 }

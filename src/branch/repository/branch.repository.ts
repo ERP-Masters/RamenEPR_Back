@@ -17,6 +17,7 @@ export class BranchRepository {
             branchs.detail_address,
             branchs.store_owner,
             branchs.contact,
+            branchs.created_at
         )
     }
 
@@ -30,7 +31,8 @@ export class BranchRepository {
                     b.location,
                     b.detail_address,
                     b.store_owner,
-                    b.contact
+                    b.contact,
+                    b.created_at
                 )
         );
     }
@@ -48,7 +50,8 @@ export class BranchRepository {
                     b.location,
                     b.detail_address,
                     b.store_owner,
-                    b.contact
+                    b.contact,
+                    b.created_at
                 ),
         );
     }
@@ -71,8 +74,45 @@ export class BranchRepository {
                     b.location,
                     b.detail_address,
                     b.store_owner,
-                    b.contact
+                    b.contact,
+                    b.created_at
                 ),
         );
+    }
+    async findById(id: number): Promise<BranchEntity | null> {
+        const branch = await this.prisma.branch.findUnique({
+            where: { branch_id: id },
+        });
+        return branch
+            ? new BranchEntity(
+                branch.branch_id,
+                branch.name,
+                branch.location,
+                branch.detail_address,
+                branch.store_owner,
+                branch.contact,
+                branch.created_at,
+            )
+            : null;
+    }
+
+    async update(id: number, data: UpdateBranchDto): Promise<BranchEntity> {
+        const branch = await this.prisma.branch.update({
+            where: { branch_id: id },
+            data,
+        });
+        return new BranchEntity(
+            branch.branch_id,
+            branch.name,
+            branch.location,
+            branch.detail_address,
+            branch.store_owner,
+            branch.contact,
+            branch.created_at,
+        );
+    }
+
+    async remove(id: number): Promise<void> {
+        await this.prisma.branch.delete({ where: { branch_id: id } });
     }
 }

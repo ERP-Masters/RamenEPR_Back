@@ -135,8 +135,10 @@ model Category {
 model Branch {
   branch_id  Int        @id @default(autoincrement())
   name       String
-  type       BranchType
   location   String
+  detail_address String
+  store_owner String
+  contact    String
   created_at DateTime   @default(now())
 
   orderRequest  OrderRequest[]
@@ -228,11 +230,6 @@ enum HygieneGrade {
   A
   B
   C
-}
-
-enum BranchType {
-  DIRECT
-  FRANCHISE
 }
 
 enum PaymentStatus {

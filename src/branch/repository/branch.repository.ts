@@ -13,6 +13,7 @@ export class BranchRepository {
 
   async create(data: CreateBranchDto): Promise<BranchEntity> {
     const branches = await this.prisma.branch.create({ data });
+
     return new BranchEntity(
       branches.branch_id,
       branches.name,
@@ -28,6 +29,11 @@ export class BranchRepository {
   // 전체 조회
   async findAll(): Promise<BranchEntity[]> {
     const branches = await this.prisma.branch.findMany();
+        
+    if (!branches.length) {
+      throw new NotFoundException('현재 등록된 지점이 없습니다.');
+    }
+    
     return branches.map(
       (b) =>
         new BranchEntity(
@@ -57,6 +63,11 @@ export class BranchRepository {
         created_at: true,
       },
     })
+
+    if (!branches.length) {
+      throw new NotFoundException('현재 사용되지 않는 지점이 없습니다.');
+    }
+
     return branches.map(
       (b) =>
         new BranchEntity(

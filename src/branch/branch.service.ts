@@ -23,7 +23,7 @@ export class BranchService {
 
   async findById(id: number): Promise<BranchEntity> {
     const branch = await this.branchRepository.findById(id);
-    if (!branch) throw new NotFoundException(`Branch with ID ${id} not found`);
+    if (!branch) throw new NotFoundException(`지점 id: ${id}가 존재하지 않습니다. `);
     return branch;
   }
 
@@ -31,7 +31,8 @@ export class BranchService {
     return this.branchRepository.update(id, dto);
   }
 
-  async changeUseState(id: number, state: UseState): Promise<{ message: string; branch: BranchEntity }> {
+  async changeUseState(id: number, state: UseState): 
+  Promise<{ message: string; branch: BranchEntity }> {
     const updated = await this.branchRepository.changeUseState(id, state);
     return {
       message: "지점 ${id}의 상태가 ${state}로 변경되었습니다.",

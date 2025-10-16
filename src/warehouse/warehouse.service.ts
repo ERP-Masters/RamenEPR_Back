@@ -19,7 +19,7 @@ export class WarehouseService {
 
   // 특정 위치(location) 기준 조회
   async findByLocation(loc: string): Promise<WarehouseEntity[]> {
-    return this.warehouseRepository.findBylocation(loc);
+    return this.warehouseRepository.findByLocation(loc);
   }
 
   // 창고 ID 기준 조회

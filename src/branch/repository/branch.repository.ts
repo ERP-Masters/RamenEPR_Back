@@ -8,19 +8,18 @@ import { UpdateBranchDto } from "../dto/update-branch.dto";
 export class BranchRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  // Branch 생성
-  async create(data: CreateBranchDto): Promise<BranchEntity> {
-    const branch = await this.prisma.branch.create({ data });
-    return new BranchEntity(
-      branch.branch_id,
-      branch.name,
-      branch.location,
-      branch.detail_address,
-      branch.store_owner,
-      branch.contact,
-      branch.created_at,
-    );
-  }
+    async create(data: CreateBranchDto): Promise<BranchEntity> {
+        const branchs = await this.prisma.branch.create({ data });
+        return new BranchEntity(
+            branchs.branch_id,
+            branchs.name,
+            branchs.location,
+            branchs.detail_address,
+            branchs.store_owner,
+            branchs.contact,
+            branchs.created_at
+        )
+    }
 
   // 전체 조회
   async findAll(): Promise<BranchEntity[]> {

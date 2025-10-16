@@ -144,7 +144,7 @@ model Branch {
   detail_address String
   store_owner String
   contact    String
-  isused     UseState.  @default(USED)
+  isused     UseState  @default(USED)
   created_at DateTime   @default(now())
 
   orderRequest  OrderRequest[]

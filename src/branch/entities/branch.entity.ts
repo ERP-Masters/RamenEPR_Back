@@ -1,3 +1,5 @@
+import { UseState } from "@prisma/client";
+
 export class BranchEntity {
     constructor ( 
         public readonly branch_id: number,
@@ -6,6 +8,7 @@ export class BranchEntity {
         public readonly detail_address: string,
         public readonly store_owner: string,
         public readonly contact: string,
+        public readonly isused: UseState,
         public readonly created_at: Date,
     ) {}
 }

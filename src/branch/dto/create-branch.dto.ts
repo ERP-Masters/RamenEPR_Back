@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsPhoneNumber } from "class-validator";
+import { IsString, IsNotEmpty, IsPhoneNumber, IsEnum, UseState } from "class-validator";
 import { Transform } from "class-transformer";
 
 export class CreateBranchDto {
@@ -23,5 +23,9 @@ export class CreateBranchDto {
     @IsPhoneNumber('KR')
     @IsNotEmpty()
     contact: string;
+
+    @IsEnum(UseState)
+    @IsNotEmpty()
+    isused: UseState;
 }
 

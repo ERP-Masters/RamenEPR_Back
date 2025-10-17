@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { WarehouseRepository } from "./repository/warehouse.repository";
 import { WarehouseEntity } from "./entities/warehouse.entity";
 import { CreateWarehouseDto } from "./dto/create-warehouse.dto";
+import { UseState } from "@prisma/client";
 
 @Injectable()
 export class WarehouseService {
@@ -17,6 +18,9 @@ export class WarehouseService {
     return this.warehouseRepository.findAll();
   }
 
+  async findNotUsedWh(): Promise<WarehouseEntity[]> {
+    return this.warehouseRepository.findNotUsedWh();
+  }
   // 특정 위치(location) 기준 조회
   async findByLocation(loc: string): Promise<WarehouseEntity[]> {
     return this.warehouseRepository.findByLocation(loc);
@@ -37,7 +41,14 @@ export class WarehouseService {
   }
 
   // 창고 삭제
-  async remove(id: number): Promise<void> {
-    return this.warehouseRepository.remove(id);
-  }
+  async changeUseState(id: number, state: UseState):
+    Promise<{ message: string; warehouse: WarehouseEntity }>{
+      const updated = await this.warehouseRepository.changeUseState(
+        id, state
+      );
+      return {
+            message: "창고 ${id}의 상태가 ${state}로 변경되었습니다.",
+            warehouse: updated,
+      }
+    }
 }

@@ -1,4 +1,5 @@
-import { IsString, IsNotEmpty } from "class-validator";
+import { IsString, IsNotEmpty, IsEnum } from "class-validator";
+import { UseState } from "@prisma/client";
 
 export class CreateWarehouseDto {
     @IsString()
@@ -8,4 +9,7 @@ export class CreateWarehouseDto {
     @IsString()
     @IsNotEmpty()
     location: string; 
+
+    @IsEnum(UseState)
+    isused: UseState;
 }

@@ -33,7 +33,7 @@ export class BranchController {
     return this.branchService.update(+id, dto);
   }
 
-  @Put(':id')
+  @Put('changestate/:id')
   async changeUseState(
     @Param('id') 
     id: string,

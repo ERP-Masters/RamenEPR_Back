@@ -2,6 +2,7 @@ import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common'
 import { VendorService } from './vendor.service';
 import { CreateVendorDto } from './dto/create-vendor.dto';
 import { UpdateVendorDto } from './dto/update-vendor.dto';
+import { UseState } from '@prisma/client';
 
 @Controller('vendors')
 export class VendorController {
@@ -15,6 +16,11 @@ export class VendorController {
   @Get()
   async findAll() {
     return this.vendorService.findAll();
+  }
+
+  @Get('state')
+  async findNotUsedBranch() { 
+    return this.vendorService.findNotUsedVenor();
   }
 
   @Get('summary')
@@ -32,8 +38,13 @@ export class VendorController {
     return this.vendorService.update(+id, dto);
   }
 
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.vendorService.remove(+id);
-  }
+ @Put('changestate/:id')
+   async changeUseState(
+     @Param('id')
+     id: string,
+     @Body('state')
+     state: UseState
+   ) {
+     return this.vendorService.changeUseState(+id, state);
+   }
 }

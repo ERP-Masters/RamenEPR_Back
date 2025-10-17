@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsEnum, IsDateString, IsNotEmpty } from 'class-validator';
+import { IsString, IsInt, IsDateString, IsNotEmpty } from 'class-validator';
 
 export class CreateItemDto { 
     @IsString()

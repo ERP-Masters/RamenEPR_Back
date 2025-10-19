@@ -1,14 +1,16 @@
-import { IsNotEmpty, IsString, IsEnum, IsEmail, IsEmpty } from "class-validator";
-import { CategoryGroup } from "@prisma/client";
-import { Injectable } from "@nestjs/common";
+import { IsNotEmpty, IsString, IsEnum } from "class-validator";
+import { CategoryGroup, UseState } from "@prisma/client";
 
 
 export class CreateCategoryDto {
-    @IsString()
+    @IsEnum(CategoryGroup)
     @IsNotEmpty()
     group: CategoryGroup;
 
     @IsString()
     @IsNotEmpty()
-    category_name: string; 
+    category_name: string;
+
+    @IsEnum(UseState)
+    isused: UseState;
 }

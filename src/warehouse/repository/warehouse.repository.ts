@@ -2,36 +2,47 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/database/prisma.service";
 import { CreateWarehouseDto } from "../dto/create-warehouse.dto";
 import { WarehouseEntity } from "../entities/warehouse.entity";
+import { UseState } from "@prisma/client";
 
 @Injectable()
 export class WarehouseRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  private loadEntity(warehouse: any): WarehouseEntity {
+    return new WarehouseEntity(
+      warehouse.warehouse_id,
+      warehouse.name,
+      warehouse.location,
+      warehouse.isused,
+      warehouse.created_at,
+    );
+  }
+
   // 창고 등록
   async create(data: CreateWarehouseDto): Promise<WarehouseEntity> {
     const warehouses = await this.prisma.warehouse.create({ data });
-    return new WarehouseEntity(
-      warehouses.warehouse_id,
-      warehouses.name,
-      warehouses.location,
-      warehouses.created_at,
-    );
+
+    return this.loadEntity(warehouses);
   }
 
   //전체 창고 조회
   async findAll(): Promise<WarehouseEntity[]> {
     const warehouses = await this.prisma.warehouse.findMany();
+   
     return warehouses.map(
-      (w) =>
-        new WarehouseEntity(
-          w.warehouse_id,
-          w.name,
-          w.location,
-          w.created_at,
-        ),
+      (w) => this.loadEntity(w)
     );
   }
 
+  async findNotUsedWh(): Promise<WarehouseEntity[]> {
+    const warehouses = await this.prisma.warehouse.findMany({
+      where: { isused: UseState.NOTUSED },
+    });
+    
+    return warehouses.map(
+      (w) => this.loadEntity(w)
+    );
+  }
   //위치로 검색
   async findByLocation(loc: string): Promise<WarehouseEntity[]> {
     const warehouses = await this.prisma.warehouse.findMany({
@@ -41,14 +52,9 @@ export class WarehouseRepository {
         },
       },
     });
+
     return warehouses.map(
-      (w) =>
-        new WarehouseEntity(
-          w.warehouse_id,
-          w.name,
-          w.location,
-          w.created_at,
-        ),
+      (w) => this.loadEntity(w)
     );
   }
 
@@ -64,12 +70,7 @@ export class WarehouseRepository {
       throw new NotFoundException(`Warehouse with ID ${id} not found`);
     }
 
-    return new WarehouseEntity(
-      warehouse.warehouse_id,
-      warehouse.name,
-      warehouse.location,
-      warehouse.created_at,
-    );
+    return this.loadEntity(warehouse);
   }
 
   //창고 수정
@@ -79,18 +80,17 @@ export class WarehouseRepository {
       data,
     });
 
-    return new WarehouseEntity(
-      warehouses.warehouse_id,
-      warehouses.name,
-      warehouses.location,
-      warehouses.created_at,
-    );
+    return this.loadEntity(warehouses);
   }
 
-  // 창고 삭제
-  async remove(id: number): Promise<void> {
-    await this.prisma.warehouse.delete({
+  // 창고 수정
+  async changeUseState(id: number, state: UseState): Promise<WarehouseEntity> {
+    const warehouse = await this.prisma.warehouse.update({
       where: { warehouse_id: id },
+      data: { isused: state }
     });
+
+    return this.loadEntity(warehouse);
   }
+
 }

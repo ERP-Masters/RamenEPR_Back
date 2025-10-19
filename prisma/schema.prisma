@@ -18,6 +18,7 @@ model Warehouse {
   warehouse_id Int      @id @default(autoincrement())
   name         String
   location     String
+  isused       UseState @default(USED)
   created_at   DateTime @default(now())
 
   inventory Inventory[]
@@ -66,6 +67,7 @@ model Unit {
   unit_id Int    @id @default(autoincrement())
   code    String @unique
   name    String
+  isused  UseState  @default(USED)
 
   items Item[]
 }
@@ -77,6 +79,7 @@ model OrderRequest {
   item_id    String
   quantity   Int
   status     OrderStatus
+
   created_at DateTime    @default(now())
 
   branch   Branch    @relation(fields: [branch_id], references: [branch_id])
@@ -86,7 +89,8 @@ model OrderRequest {
 
 /// 거래처 발주
 model VendorOrder {
-  vendor_order_id Int         @id @default(autoincrement())
+  id Int         @id @default(autoincrement())
+  vendor_order_id String
   vendor_id       Int
   item_id         String
   quantity        Int
@@ -126,6 +130,7 @@ model Category {
   category_id   Int           @id @default(autoincrement())
   group         CategoryGroup
   category_name String
+  isused        UseState      @default(USED)
   created_at    DateTime      @default(now())
 
   items Item[]
@@ -139,6 +144,7 @@ model Branch {
   detail_address String
   store_owner String
   contact    String
+  isused     UseState  @default(USED)
   created_at DateTime   @default(now())
 
   orderRequest  OrderRequest[]
@@ -175,8 +181,9 @@ model Vendor {
   manager   String
   contact   String
   address   String
+  isused    UseState
 
-  items        Item[] // ✅ 추가됨
+  items        Item[] 
   vendorOrders VendorOrder[]
   payments     VendorPayment[]
 }
@@ -215,9 +222,15 @@ enum InventoryStatus {
 
 enum OrderStatus {
   PENDING
-  APPROVED
+  INPROGRESS
+  CANCLE
   SHIPPING
   COMPLETED
+}
+
+enum UseState {
+  USED
+  NOTUSED
 }
 
 enum DeliveryStatus {

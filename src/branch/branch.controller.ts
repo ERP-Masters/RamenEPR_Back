@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Param, Body } from '@nestjs/common';
+import { UseState } from "@prisma/client";
 import { BranchService } from './branch.service';
 import { CreateBranchDto } from './dto/create-branch.dto';
 import { UpdateBranchDto } from './dto/update-branch.dto';
@@ -17,6 +18,11 @@ export class BranchController {
     return this.branchService.findAll();
   }
 
+  @Get('state')
+  async notUsedBranch() {
+    return this.branchService.notUsedBranch();
+  }
+
   @Get(':id')
   async findById(@Param('id') id: string) {
     return this.branchService.findById(+id);
@@ -27,9 +33,15 @@ export class BranchController {
     return this.branchService.update(+id, dto);
   }
 
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.branchService.remove(+id);
+  @Put('changestate/:id')
+  async changeUseState(
+    @Param('id') 
+    id: number,
+    @Body('state')
+    state: UseState
+  ) 
+    {
+    return this.branchService.changeUseState(+id, state);
   }
 
   @Get('search/name/:bname')

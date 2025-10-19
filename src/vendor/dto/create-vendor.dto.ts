@@ -1,5 +1,5 @@
-import { Prisma } from '@prisma/client';
-import { IsString, IsEmail, IsNotEmpty } from 'class-validator';
+import { Prisma, UseState } from '@prisma/client';
+import { IsString, IsEmail, IsNotEmpty, IsEnum} from 'class-validator';
 
 export class CreateVendorDto implements Prisma.VendorCreateInput {
     @IsString()
@@ -17,4 +17,8 @@ export class CreateVendorDto implements Prisma.VendorCreateInput {
     @IsString()
     @IsNotEmpty()
     address: string;
+
+    @IsEnum(UseState)
+    @IsNotEmpty()
+    isused: UseState;
 }

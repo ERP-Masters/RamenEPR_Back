@@ -1,5 +1,6 @@
-import { IsString, IsNotEmpty, IsPhoneNumber } from "class-validator";
+import { IsString, IsNotEmpty, IsPhoneNumber, IsEnum } from "class-validator";
 import { Transform } from "class-transformer";
+import { UseState } from "@prisma/client";
 
 export class CreateBranchDto {
     @IsString()
@@ -23,5 +24,9 @@ export class CreateBranchDto {
     @IsPhoneNumber('KR')
     @IsNotEmpty()
     contact: string;
+
+    @IsEnum(UseState)
+    @IsNotEmpty()
+    isused: UseState;
 }
 

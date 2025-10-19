@@ -1,8 +1,7 @@
-import { IsString, IsNotEmpty, IsInt } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum } from 'class-validator';
+import { UseState } from '@prisma/client';
 
 export class CreateUnitDto { 
-
-
     @IsString()
     @IsNotEmpty()
     code: string;
@@ -10,4 +9,7 @@ export class CreateUnitDto {
     @IsString()
     @IsNotEmpty()
     name: string;
+
+    @IsEnum(UseState)
+    isused: UseState;
 }

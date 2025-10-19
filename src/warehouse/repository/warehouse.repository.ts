@@ -8,30 +8,29 @@ import { UseState } from "@prisma/client";
 export class WarehouseRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  private loadEntity(warehouse: any): WarehouseEntity {
+    return new WarehouseEntity(
+      warehouse.warehouse_id,
+      warehouse.name,
+      warehouse.location,
+      warehouse.isused,
+      warehouse.created_at,
+    );
+  }
+
   // 창고 등록
   async create(data: CreateWarehouseDto): Promise<WarehouseEntity> {
     const warehouses = await this.prisma.warehouse.create({ data });
-    return new WarehouseEntity(
-      warehouses.warehouse_id,
-      warehouses.name,
-      warehouses.location,
-      warehouses.isused,
-      warehouses.created_at,
-    );
+
+    return this.loadEntity(warehouses);
   }
 
   //전체 창고 조회
   async findAll(): Promise<WarehouseEntity[]> {
     const warehouses = await this.prisma.warehouse.findMany();
+   
     return warehouses.map(
-      (w) =>
-        new WarehouseEntity(
-          w.warehouse_id,
-          w.name,
-          w.location,
-          w.isused,
-          w.created_at,
-        ),
+      (w) => this.loadEntity(w)
     );
   }
 
@@ -39,15 +38,9 @@ export class WarehouseRepository {
     const warehouses = await this.prisma.warehouse.findMany({
       where: { isused: UseState.NOTUSED },
     });
+    
     return warehouses.map(
-      (w) =>
-        new WarehouseEntity(
-          w.warehouse_id,
-          w.name,
-          w.location,
-          w.isused,
-          w.created_at,
-        )
+      (w) => this.loadEntity(w)
     );
   }
   //위치로 검색
@@ -59,15 +52,9 @@ export class WarehouseRepository {
         },
       },
     });
+
     return warehouses.map(
-      (w) =>
-        new WarehouseEntity(
-          w.warehouse_id,
-          w.name,
-          w.location,
-          w.isused,
-          w.created_at,
-        ),
+      (w) => this.loadEntity(w)
     );
   }
 
@@ -83,13 +70,7 @@ export class WarehouseRepository {
       throw new NotFoundException(`Warehouse with ID ${id} not found`);
     }
 
-    return new WarehouseEntity(
-      warehouse.warehouse_id,
-      warehouse.name,
-      warehouse.location,
-      warehouse.isused,
-      warehouse.created_at,
-    );
+    return this.loadEntity(warehouse);
   }
 
   //창고 수정
@@ -99,13 +80,7 @@ export class WarehouseRepository {
       data,
     });
 
-    return new WarehouseEntity(
-      warehouses.warehouse_id,
-      warehouses.name,
-      warehouses.location,
-      warehouses.isused,
-      warehouses.created_at,
-    );
+    return this.loadEntity(warehouses);
   }
 
   // 창고 수정
@@ -115,13 +90,7 @@ export class WarehouseRepository {
       data: { isused: state }
     });
 
-    return new WarehouseEntity(
-      warehouse.warehouse_id,
-      warehouse.name,
-      warehouse.location,
-      warehouse.isused,
-      warehouse.created_at,
-    )
+    return this.loadEntity(warehouse);
   }
 
 }

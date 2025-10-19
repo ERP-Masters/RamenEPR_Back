@@ -1,10 +1,11 @@
-import { Controller, Post, Get, Put, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Post, Get, Put, Param, Body } from '@nestjs/common';
 import { WarehouseService } from './warehouse.service';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
+import { UseState } from '@prisma/client';
 
 @Controller('warehouses')
 export class WarehouseController {
-  constructor(private readonly warehouseService: WarehouseService) {}
+  constructor(private readonly warehouseService: WarehouseService) { }
 
   // 창고 생성
   @Post()
@@ -16,6 +17,11 @@ export class WarehouseController {
   @Get()
   async findAll() {
     return this.warehouseService.findAll();
+  }
+  //미사용 창고 조회
+  @Get('state')
+  async findNotUsedWh() {
+    return this.warehouseService.findNotUsedWh();
   }
 
   // 특정 창고 ID 조회
@@ -37,8 +43,13 @@ export class WarehouseController {
   }
 
   // 창고 삭제
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.warehouseService.remove(+id);
+  @Put('changestate/:id')
+  async changeUseState(
+    @Param('id')
+    id: string,
+    @Body('state')
+    state: UseState
+  ) {
+    return this.warehouseService.changeUseState(+id, state);
   }
 }

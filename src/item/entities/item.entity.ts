@@ -1,5 +1,3 @@
-import { Unit } from '@prisma/client';
-
 export class ItemEntity {
     constructor (
         public readonly item_id: string,
@@ -8,6 +6,6 @@ export class ItemEntity {
         public readonly unit_id: number,
         public readonly vendor_id: number,
         public readonly unit_price: number,
-        public readonly expiry_date: Date,
+        public readonly expiry_date: Date
     ) {}
 }

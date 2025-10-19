@@ -27,6 +27,14 @@ export class BranchService {
     return branch;
   }
 
+  async findByBName(bname: string): Promise<BranchEntity[]> {
+    return this.branchRepository.findByBName(bname);
+  }
+
+  async findByLocationOrDetail(loc: string): Promise<BranchEntity[]> {
+    return this.branchRepository.findByLocationOrDetail(loc);
+  }
+
   async update(id: number, dto: UpdateBranchDto): Promise<BranchEntity> {
     return this.branchRepository.update(id, dto);
   }
@@ -38,13 +46,5 @@ export class BranchService {
       message: "지점 ${id}의 상태가 ${state}로 변경되었습니다.",
       branch: updated,
     };
-  }
-
-  async findByBName(bname: string): Promise<BranchEntity[]> {
-    return this.branchRepository.findByBName(bname);
-  }
-
-  async findByLocationOrDetail(loc: string): Promise<BranchEntity[]> {
-    return this.branchRepository.findByLocationOrDetail(loc);
   }
 }

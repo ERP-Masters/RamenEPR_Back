@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../database/prisma.service";
 import { CategoryEntity } from "../entities/category.entity";
 import { CreateCategoryDto } from "../dto/create-category.dto";
@@ -37,22 +37,30 @@ export class CategoryRepository {
 
     async findNotUsedCategory(): Promise<CategoryEntity[]> {
         const category = await this.prisma.category.findMany({
-            where: { 
-                isused: UseState.NOTUSED 
-            },
-        });
-        
+            where: { isused: UseState.NOTUSED },
+            select: {
+                category_id: true,
+                group: true,
+                category_name: true,
+                isused: true
+            }
+        })
+
+        if (!category.length) {
+            throw new NotFoundException('현재 사용되지 않는 카테고리가 없습니다. ');
+        }
+
         return category.map(
-            c => 
+            (c) =>
                 new CategoryEntity(
                     c.category_id,
                     c.group,
                     c.category_name,
-                    c.isused,
-                )
+                    c.isused
+                ),
         );
-    }
 
+    }
     //카레고리 수정
     async update(id: number, data: UpdateCategoryDto): Promise<CategoryEntity> {
         const category = await this.prisma.category.update({ 

@@ -16,7 +16,7 @@ export class CategoryService {
     async findAll(): Promise<CategoryEntity[]> {
         return this.CategoryRepository.findAll();
     }
-    
+
     async findNotUsedCategory(): Promise<CategoryEntity[]> {
         return this.CategoryRepository.findNotUsedCategory();
     }
@@ -26,12 +26,13 @@ export class CategoryService {
     }
 
     async changeUseState(id: number, state: UseState):
-        Promise<{ message: string, category: CategoryEntity }> {
-        const updated = await this.CategoryRepository.changeUseState(id, state);
-            
+        Promise<{ message: string; category: CategoryEntity }>{
+            const updated = await this.CategoryRepository.changeUseState(
+                id, state
+            );
         return {
             message: "카테고리 ${id}의 상태가 ${state}로 변경되었습니다.",
             category: updated,
-        };
+        }
     }
 }

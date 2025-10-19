@@ -19,7 +19,7 @@ export class CategoryController {
     }
 
     @Get('state')
-    async findNotUsedCategory(){
+    async findNotUsedCategory() {
         return this.categoryService.findNotUsedCategory();
     }
 
@@ -28,14 +28,14 @@ export class CategoryController {
         return this.categoryService.update(+id, dto);
     }
 
-    @Put(':id')
+    @Put('changestate/:id')
     async changeUseState(
         @Param('id') 
-        id: number,
+        id: string,
         @Body('state')
         state: UseState
     ) {
-    return this.categoryService.changeUseState(+id, state);
+        return this.categoryService.changeUseState(+id, state);
     }
 
 }

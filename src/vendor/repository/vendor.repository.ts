@@ -4,6 +4,7 @@ import { VendorEntity } from "../entities/vendor.entity";
 import { CreateVendorDto } from "../dto/create-vendor.dto";
 import { UpdateItemDto } from "src/item/dto/update-item.dto";
 import { ResponseVendorDto } from "../dto/reponse-vendor.dto";
+import { UseState } from "@prisma/client";
 
 @Injectable()
 export class VendorRepository {
@@ -17,7 +18,8 @@ export class VendorRepository {
             vendor.vendor_id, 
             vendor.name, 
             vendor.manager, 
-            vendor.contact, 
+            vendor.contact,
+            vendor.isused,
             vendor.address
         );
     }
@@ -32,7 +34,26 @@ export class VendorRepository {
                     v.vendor_id, 
                     v.name, 
                     v.manager, 
-                    v.contact, 
+                    v.contact,
+                    v.isused,
+                    v.address
+                )
+        );
+    }
+
+    async findNotUsedVendor(): Promise<VendorEntity[]> {
+        const vendors = await this.prisma.vendor.findMany({
+            where: { isused: UseState.NOTUSED }
+        });
+
+        return vendors.map(
+            v => 
+                new VendorEntity(
+                    v.vendor_id, 
+                    v.name, 
+                    v.manager, 
+                    v.contact,
+                    v.isused,
                     v.address
                 )
         );
@@ -56,7 +77,8 @@ export class VendorRepository {
             vendor.vendor_id, 
             vendor.name, 
             vendor.manager, 
-            vendor.contact, 
+            vendor.contact,
+            vendor.isused,
             vendor.address) : null;
     }
 
@@ -70,17 +92,26 @@ export class VendorRepository {
             vendor.vendor_id, 
             vendor.name, 
             vendor.manager, 
-            vendor.contact, 
+            vendor.contact,
+            vendor.isused,
             vendor.address
         );
     }
 
     //Remove specific vender
-    async remove(id: number): Promise<void> {
-        await this.prisma.vendor.delete({
-             where: { 
-                vendor_id: id 
-            } 
+    async changeUseState(id: number, state: UseState): Promise<VendorEntity> {
+        const vendor = await this.prisma.vendor.update({
+            where: { vendor_id: id },
+            data: { isused: state }
         });
+
+        return new VendorEntity(
+            vendor.vendor_id, 
+            vendor.name, 
+            vendor.manager, 
+            vendor.contact,
+            vendor.isused,
+            vendor.address
+        );
     }
 }

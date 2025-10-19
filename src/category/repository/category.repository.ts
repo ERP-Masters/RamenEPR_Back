@@ -3,6 +3,7 @@ import { PrismaService } from "../../database/prisma.service";
 import { CategoryEntity } from "../entities/category.entity";
 import { CreateCategoryDto } from "../dto/create-category.dto";
 import { UpdateCategoryDto } from "../dto/update-category.dto";
+import { UseState } from "@prisma/client";
 
 @Injectable()
 export class CategoryRepository {
@@ -15,7 +16,8 @@ export class CategoryRepository {
         return new CategoryEntity(
             category.category_id, 
             category.group , 
-            category.category_name
+            category.category_name,
+            category.isused,
         );
     }
 
@@ -27,7 +29,26 @@ export class CategoryRepository {
                 new CategoryEntity(
                     c.category_id,
                     c.group,
-                    c.category_name
+                    c.category_name,
+                    c.isused,
+                )
+        );
+    }
+
+    async findNotUsedCategory(): Promise<CategoryEntity[]> {
+        const category = await this.prisma.category.findMany({
+            where: { 
+                isused: UseState.NOTUSED 
+            },
+        });
+        
+        return category.map(
+            c => 
+                new CategoryEntity(
+                    c.category_id,
+                    c.group,
+                    c.category_name,
+                    c.isused,
                 )
         );
     }
@@ -44,16 +65,27 @@ export class CategoryRepository {
         return new CategoryEntity(
             category.category_id, 
             category.group , 
-            category.category_name
+            category.category_name,
+            category.isused,
         );
     }
 
-    async remove(id: number): Promise<void> {
-        await this.prisma.category.delete({ 
+    async changeUseState(id: number, state: UseState): Promise<CategoryEntity> {
+        const category = await this.prisma.category.update({ 
             where: {
-                 category_id: id 
-                } 
+                    category_id: id 
+            },
+            data: {
+                isused: state
+            },
         });
+
+        return new CategoryEntity(
+            category.category_id, 
+            category.group , 
+            category.category_name,
+            category.isused, 
+        )
     }
 
 }

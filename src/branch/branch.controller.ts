@@ -36,7 +36,7 @@ export class BranchController {
   @Put(':id')
   async changeUseState(
     @Param('id') 
-    id: string,
+    id: number,
     @Body('state')
     state: UseState
   ) 

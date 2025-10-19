@@ -10,10 +10,7 @@ import { UseState } from "@prisma/client";
 export class VendorRepository {
     constructor(private readonly prisma: PrismaService){ }
 
-    //Create Vendor
-    async create(data: CreateVendorDto): Promise<VendorEntity> {
-
-        const vendor = await this.prisma.vendor.create({ data });
+    private loadEntity(vendor: any): VendorEntity {
         return new VendorEntity(
             vendor.vendor_id, 
             vendor.name, 
@@ -23,21 +20,20 @@ export class VendorRepository {
             vendor.address
         );
     }
+
+    //Create Vendor
+    async create(data: CreateVendorDto): Promise<VendorEntity> {
+        const vendors = await this.prisma.vendor.create({ data });
+        
+        return this.loadEntity(vendors);
+    }
     
     //find All Vendor
     async findAll(): Promise<VendorEntity[]> {
-        //SELECT * FROM vendor;
         const vendors = await this.prisma.vendor.findMany();
+        
         return vendors.map(
-            v => 
-                new VendorEntity(
-                    v.vendor_id, 
-                    v.name, 
-                    v.manager, 
-                    v.contact,
-                    v.isused,
-                    v.address
-                )
+            (v) => this.loadEntity(v)
         );
     }
 
@@ -47,15 +43,7 @@ export class VendorRepository {
         });
 
         return vendors.map(
-            v => 
-                new VendorEntity(
-                    v.vendor_id, 
-                    v.name, 
-                    v.manager, 
-                    v.contact,
-                    v.isused,
-                    v.address
-                )
+            (v) => this.loadEntity(v)
         );
     }
 
@@ -64,22 +52,16 @@ export class VendorRepository {
             select: {
                 vendor_id: true, name: true
             },
-        })
+        });
     }
 
     //Find a specific vendor by ID.
-    async findOne(id: number): Promise<VendorEntity | null> {
+    async findOne(id: number): Promise<VendorEntity> {
         const vendor = await this.prisma.vendor.findUnique({
             where: { vendor_id: id }
         });
-        return vendor ? 
-        new VendorEntity(
-            vendor.vendor_id, 
-            vendor.name, 
-            vendor.manager, 
-            vendor.contact,
-            vendor.isused,
-            vendor.address) : null;
+    
+        return this.loadEntity(vendor);
     }
 
     //update vendor info.
@@ -88,14 +70,8 @@ export class VendorRepository {
             where: { vendor_id: id }, 
             data
         });
-        return new VendorEntity(
-            vendor.vendor_id, 
-            vendor.name, 
-            vendor.manager, 
-            vendor.contact,
-            vendor.isused,
-            vendor.address
-        );
+
+        return this.loadEntity(vendor);
     }
 
     //Remove specific vender
@@ -105,13 +81,6 @@ export class VendorRepository {
             data: { isused: state }
         });
 
-        return new VendorEntity(
-            vendor.vendor_id, 
-            vendor.name, 
-            vendor.manager, 
-            vendor.contact,
-            vendor.isused,
-            vendor.address
-        );
+        return this.loadEntity(vendor);
     }
 }

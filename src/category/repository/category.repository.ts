@@ -10,9 +10,7 @@ export class CategoryRepository {
     //prisma Service 의존성 주입
     constructor(private readonly prisma: PrismaService) {}
 
-    //카테고리 생성
-    async create(data: CreateCategoryDto ): Promise<CategoryEntity> {
-        const category = await this.prisma.category.create({ data });
+    private loadEntity(category: any): CategoryEntity {
         return new CategoryEntity(
             category.category_id, 
             category.group , 
@@ -21,43 +19,31 @@ export class CategoryRepository {
         );
     }
 
+    //카테고리 생성
+    async create(data: CreateCategoryDto ): Promise<CategoryEntity> {
+        const category = await this.prisma.category.create({ data });
+        return this.loadEntity(category);
+    }
+
     //카테고리 조회
     async findAll(): Promise<CategoryEntity[]> {
         const category = await this.prisma.category.findMany();
         return category.map(
-            c => 
-                new CategoryEntity(
-                    c.category_id,
-                    c.group,
-                    c.category_name,
-                    c.isused,
-                )
+            (c) => this.loadEntity(c)
         );
     }
 
     async findNotUsedCategory(): Promise<CategoryEntity[]> {
         const category = await this.prisma.category.findMany({
-            where: { isused: UseState.NOTUSED },
-            select: {
-                category_id: true,
-                group: true,
-                category_name: true,
-                isused: true
-            }
-        })
+            where: { isused: UseState.NOTUSED }
+        });
 
         if (!category.length) {
             throw new NotFoundException('현재 사용되지 않는 카테고리가 없습니다. ');
         }
 
         return category.map(
-            (c) =>
-                new CategoryEntity(
-                    c.category_id,
-                    c.group,
-                    c.category_name,
-                    c.isused
-                ),
+            (c) => this.loadEntity(c)
         );
 
     }
@@ -70,12 +56,7 @@ export class CategoryRepository {
             data
         });
         
-        return new CategoryEntity(
-            category.category_id, 
-            category.group , 
-            category.category_name,
-            category.isused,
-        );
+        return this.loadEntity(category);
     }
 
     async changeUseState(id: number, state: UseState): Promise<CategoryEntity> {
@@ -88,12 +69,7 @@ export class CategoryRepository {
             },
         });
 
-        return new CategoryEntity(
-            category.category_id, 
-            category.group , 
-            category.category_name,
-            category.isused, 
-        )
+        return this.loadEntity(category);
     }
 
 }

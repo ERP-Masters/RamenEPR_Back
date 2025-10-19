@@ -183,7 +183,7 @@ model Vendor {
   address   String
   isused    UseState
 
-  items        Item[] // ✅ 추가됨
+  items        Item[] 
   vendorOrders VendorOrder[]
   payments     VendorPayment[]
 }

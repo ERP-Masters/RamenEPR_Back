@@ -5,25 +5,29 @@ import { CreateBranchDto } from "../dto/create-branch.dto";
 import { UpdateBranchDto } from "../dto/update-branch.dto";
 import { UseState } from "@prisma/client";
 import { NotFoundException } from '@nestjs/common';
+import { NotEquals } from "class-validator";
 
 
 @Injectable()
 export class BranchRepository {
   constructor(private readonly prisma: PrismaService) { }
 
+  private loadEntity(branch: any): BranchEntity {
+    return new BranchEntity(
+      branch.branch_id,
+      branch.name,
+      branch.location,
+      branch.detail_address,
+      branch.store_owner,
+      branch.contact,
+      branch.isused,
+      branch.created_at
+    )
+  }
+
   async create(data: CreateBranchDto): Promise<BranchEntity> {
     const branches = await this.prisma.branch.create({ data });
-
-    return new BranchEntity(
-      branches.branch_id,
-      branches.name,
-      branches.location,
-      branches.detail_address,
-      branches.store_owner,
-      branches.contact,
-      branches.isused,
-      branches.created_at
-    )
+    return this.loadEntity(branches);
   }
 
   // 전체 조회
@@ -35,71 +39,35 @@ export class BranchRepository {
     }
     
     return branches.map(
-      (b) =>
-        new BranchEntity(
-          b.branch_id,
-          b.name,
-          b.location,
-          b.detail_address,
-          b.store_owner,
-          b.contact,
-          b.isused,
-          b.created_at,
-        ),
+      (b) => this.loadEntity(b)
     );
   }
 
   async notUsedBranch(): Promise<BranchEntity[]> {
     const branches = await this.prisma.branch.findMany({
       where: { isused: UseState.NOTUSED },
-      select: {
-        branch_id: true,
-        name: true,
-        location: true,
-        detail_address: true,
-        store_owner: true,
-        contact: true,
-        isused: true,
-        created_at: true,
-      },
-    })
+    });
 
     if (!branches.length) {
       throw new NotFoundException('현재 사용되지 않는 지점이 없습니다.');
     }
 
     return branches.map(
-      (b) =>
-        new BranchEntity(
-          b.branch_id,
-          b.name,
-          b.location,
-          b.detail_address,
-          b.store_owner,
-          b.contact,
-          b.isused,
-          b.created_at,
-        ),
+      (b) => this.loadEntity(b)
     );
   }
 
   // ID로 조회
-  async findById(id: number): Promise<BranchEntity | null> {
+  async findById(id: number): Promise<BranchEntity> {
     const branches = await this.prisma.branch.findUnique({
       where: { branch_id: id },
     });
-    return branches
-      ? new BranchEntity(
-        branches.branch_id,
-        branches.name,
-        branches.location,
-        branches.detail_address,
-        branches.store_owner,
-        branches.contact,
-        branches.isused,
-        branches.created_at,
-      )
-      : null;
+
+    if (!branches) {
+      throw new NotFoundException(`ID ${id}번 지점을 찾을 수 없습니다.`);
+    }
+
+    return this.loadEntity(branches);
   }
 
   // 이름으로 조회
@@ -107,18 +75,13 @@ export class BranchRepository {
     const branches = await this.prisma.branch.findMany({
       where: { name: bname },
     });
+
+    if (!branches.length) {
+      throw new NotFoundException(`지점 이름 ${bname}을 찾을 수 없습니다.`);
+    }
+
     return branches.map(
-      (b) =>
-        new BranchEntity(
-          b.branch_id,
-          b.name,
-          b.location,
-          b.detail_address,
-          b.store_owner,
-          b.contact,
-          b.isused,
-          b.created_at,
-        ),
+      (b) => this.loadEntity(b)
     );
   }
 
@@ -132,18 +95,13 @@ export class BranchRepository {
         ],
       },
     });
+
+    if(!branches.length) {
+      throw new NotFoundException(`지점 위치 ${loc}을 찾을 수 없습니다.`);
+    }
+
     return branches.map(
-      (b) =>
-        new BranchEntity(
-          b.branch_id,
-          b.name,
-          b.location,
-          b.detail_address,
-          b.store_owner,
-          b.contact,
-          b.isused,
-          b.created_at,
-        ),
+      (b) => this.loadEntity(b)
     );
   }
 
@@ -153,16 +111,8 @@ export class BranchRepository {
       where: { branch_id: id },
       data,
     });
-    return new BranchEntity(
-      branches.branch_id,
-      branches.name,
-      branches.location,
-      branches.detail_address,
-      branches.store_owner,
-      branches.contact,
-      branches.isused,
-      branches.created_at,
-    );
+
+    return this.loadEntity(branches);
   }
 
   // change state(USE, NOTUSE)
@@ -171,16 +121,7 @@ export class BranchRepository {
       where: { branch_id: id },
       data: { isused: state },
     });
-
-    return new BranchEntity(
-      branches.branch_id,
-      branches.name,
-      branches.location,
-      branches.detail_address,
-      branches.store_owner,
-      branches.contact,
-      branches.isused,
-      branches.created_at,
-    );
+    
+    return this.loadEntity(branches);
   }
 }

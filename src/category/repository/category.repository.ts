@@ -47,6 +47,7 @@ export class CategoryRepository {
         );
 
     }
+    
     //카레고리 수정
     async update(id: number, data: UpdateCategoryDto): Promise<CategoryEntity> {
         const category = await this.prisma.category.update({ 

@@ -9,6 +9,17 @@ import { ItemEntity } from "../entities/item.entity";
 export class ItemRepository {
     constructor(private readonly prisma: PrismaService) { }
 
+    private loadEntity(item: any): ItemEntity {
+        return new ItemEntity(
+            item.item_id,
+            item.category_id,
+            item.name,
+            item.unit_id,
+            item.vendor_id,
+            item.unit_price,
+            item.expiry_date,
+        );
+    }
     async create(data: CreateItemDto): Promise<ItemEntity> {
         const items = await this.prisma.item.create({
             data: {
@@ -17,50 +28,26 @@ export class ItemRepository {
             },
         });
 
-        return new ItemEntity(
-            items.item_id,
-            items.category_id,
-            items.name,
-            items.unit_id,
-            items.vendor_id,
-            items.unit_price,
-            items.expiry_date,
-        );
+        return this.loadEntity(items);
     }
 
     async findAll(): Promise<ItemEntity[]> {
         const items = await this.prisma.item.findMany();
+        
         return items.map(
-            I =>
-                new ItemEntity(
-                    I.item_id,
-                    I.category_id,
-                    I.name,
-                    I.unit_id,
-                    I.vendor_id,
-                    I.unit_price,
-                    I.expiry_date,
-                )
-        )
+            (I) => this.loadEntity(I)
+        );
     }
 
     //Item Id를 통한 조회
-    async findOne(id: string): Promise<ItemEntity | null> {
+    async findOne(id: string): Promise<ItemEntity> {
         const items = await this.prisma.item.findUnique({
             where: {
                 item_id: id
             }
         });
-        return items ?
-            new ItemEntity(
-                items.item_id,
-                items.category_id,
-                items.name,
-                items.unit_id,
-                items.vendor_id,
-                items.unit_price,
-                items.expiry_date,
-            ) : null;
+        
+        return this.loadEntity(items);
     }
     //category_id로 조회
     async findItemByCategoryId(id: number): Promise<ItemEntity[]> {
@@ -71,16 +58,7 @@ export class ItemRepository {
         });
 
         return items.map(
-            (I) =>
-                new ItemEntity(
-                    I.item_id,
-                    I.category_id,
-                    I.name,
-                    I.unit_id,
-                    I.vendor_id,
-                    I.unit_price,
-                    I.expiry_date,
-                )
+            (I) => this.loadEntity(I)
         );
     }
 
@@ -93,16 +71,7 @@ export class ItemRepository {
         });
 
         return items.map(
-            (I) =>
-                new ItemEntity(
-                    I.item_id,
-                    I.category_id,
-                    I.name,
-                    I.unit_id,
-                    I.vendor_id,
-                    I.unit_price,
-                    I.expiry_date,
-                )
+            (I) => this.loadEntity(I)
         );
     }
 
@@ -118,20 +87,14 @@ export class ItemRepository {
             },
         });
 
-        return new ItemEntity(
-            items.item_id,
-            items.category_id,
-            items.name,
-            items.unit_id,
-            items.vendor_id,
-            items.unit_price,
-            items.expiry_date,
-        );
+        return this.loadEntity(items);
     }
 
     //아이템 삭제
     async remove(id: string): Promise<void> {
-        await this.prisma.item.delete({ where: { item_id: id } });
+        await this.prisma.item.delete({ 
+            where: { item_id: id } 
+        });
     }
 
     async searchByName(keyword: string): Promise<ItemEntity[]> {
@@ -142,17 +105,9 @@ export class ItemRepository {
                 }
             },
         });
+
         return items.map(
-            (I) =>
-                new ItemEntity(
-                    I.item_id,
-                    I.category_id,
-                    I.name,
-                    I.unit_id,
-                    I.vendor_id,
-                    I.unit_price,
-                    I.expiry_date,
-                )
+            (I) => this.loadEntity(I)
         );
     }
 
@@ -169,16 +124,7 @@ export class ItemRepository {
         });
 
         return items.map(
-            (I) =>
-                new ItemEntity(
-                    I.item_id,
-                    I.category_id,
-                    I.name,
-                    I.unit_id,
-                    I.vendor_id,
-                    I.unit_price,
-                    I.expiry_date,
-                )
+            (I) => this.loadEntity(I)
         );
     }
 

@@ -5,7 +5,6 @@ import { CreateBranchDto } from "../dto/create-branch.dto";
 import { UpdateBranchDto } from "../dto/update-branch.dto";
 import { UseState } from "@prisma/client";
 import { NotFoundException } from '@nestjs/common';
-import { NotEquals } from "class-validator";
 
 
 @Injectable()

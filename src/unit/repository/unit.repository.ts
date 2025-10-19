@@ -9,28 +9,29 @@ import { UseState } from "@prisma/client";
 export class UnitRepository {
     constructor(private readonly prisma: PrismaService) {}
 
+    private loadEntity(unit: any): UnitEntity {
+        return new UnitEntity(
+            unit.unit_id,
+            unit.code,
+            unit.name,
+            unit.isused
+        );
+    }
+
     async create(data: CreateUnitDto): Promise<UnitEntity> {
         const units = await this.prisma.unit.create({ 
             data 
         });
-        return new UnitEntity(
-            units.unit_id,
-            units.code,
-            units.name,
-            units.isused
-        );
+
+        return this.loadEntity(units);
     }
 
     async findAll(): Promise<UnitEntity[]> {
         const units = await this.prisma.unit.findMany();
+        
         return units.map(
-            unit => 
-                new UnitEntity(
-                    unit.unit_id,
-                    unit.code,
-                    unit.name, 
-                    unit.isused
-                ));
+            (u) => this.loadEntity(u)
+        );
     }
 
     async findNotUsedUnit(): Promise<UnitEntity[]> {
@@ -39,12 +40,7 @@ export class UnitRepository {
         });
 
         return units.map(
-            unit => new UnitEntity(
-                unit.unit_id,
-                unit.code,
-                unit.name, 
-                unit.isused
-            )
+            (u) => this.loadEntity(u)
         );
     }
 
@@ -53,12 +49,8 @@ export class UnitRepository {
             where: { unit_id: id }, 
             data
         });
-        return new UnitEntity(
-            units.unit_id,
-            units.code,
-            units.name,
-            units.isused
-        );
+
+        return this.loadEntity(units);
     }
 
     async changeUseState(id: number, state: UseState): Promise<UnitEntity> {
@@ -67,11 +59,6 @@ export class UnitRepository {
             data: { isused: state },
         });
 
-        return new UnitEntity(
-            unit.unit_id,
-            unit.code,
-            unit.name,
-            unit.isused
-        );
+        return this.loadEntity(unit);
     }
 }

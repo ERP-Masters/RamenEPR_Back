@@ -4,7 +4,7 @@ import { IsInt, IsString, IsNotEmpty } from 'class-validator';
 export class ResponseVendorDto {
     @IsInt()
     @IsNotEmpty()
-    vendor_id: number;
+    vendor_id: string;
 
     @IsString()
     @IsNotEmpty()

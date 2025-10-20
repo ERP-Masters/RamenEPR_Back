@@ -2,7 +2,7 @@ import { UseState } from "@prisma/client";
 
 export class VendorEntity {
     constructor(
-        public readonly vendor_id: number,
+        public readonly vendor_id: string,
         public readonly name: string,
         public readonly manager: string,
         public readonly contact: string,

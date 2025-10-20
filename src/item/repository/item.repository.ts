@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateItemDto } from "../dto/create-item.dto";
 import { UpdateItemDto } from "../dto/update-item.dto";
 
@@ -9,8 +9,22 @@ import { ItemEntity } from "../entities/item.entity";
 export class ItemRepository {
     constructor(private readonly prisma: PrismaService) { }
 
+    private readonly CATEGORY_CODE_MAP: Record<string, string> = {
+        고기: "MEAT",
+        해산물: "SEAFOOD",
+        면류: "NOODLES",
+        채소: "VEGETABLES",
+        유제품: "DAIRY",
+        가공품: "PROCESSED",
+        소스: "SAUCES",
+        시즈닝: "SEASONINGS",
+        육수: "SOUPS",
+        육수베이스: "BTROTH_BASE"
+    }
+
     private loadEntity(item: any): ItemEntity {
         return new ItemEntity(
+            item.id,
             item.item_id,
             item.category_id,
             item.name,
@@ -20,20 +34,44 @@ export class ItemRepository {
             item.expiry_date,
         );
     }
+
+    private async generateItemId(categoryId: number): Promise<string> {
+        const category = await this.prisma.category.findUnique({
+            where: { id: categoryId },
+            select: { group: true, category_name: true },
+        });
+
+        if (!category) {
+            throw new NotFoundException(`카테고리 ID ${categoryId}를 찾을 수 없습니다.`);
+        }
+
+        const categoryCode = category.group ?? "ETC";
+
+        const count = await this.prisma.item.count({
+            where: { category_id: categoryId },
+        });
+
+        return `IT_${categoryCode}_${(count + 1).toString().padStart(4, "0")}`;
+    }
+
+    /** 품목 생성 (ERP 코드 자동 부여) */
     async create(data: CreateItemDto): Promise<ItemEntity> {
-        const items = await this.prisma.item.create({
+        const item_id = await this.generateItemId(data.category_id);
+
+        const item = await this.prisma.item.create({
             data: {
                 ...data,
+                item_id,
                 expiry_date: new Date(data.expiry_date),
             },
         });
 
-        return this.loadEntity(items);
+        return this.loadEntity(item);
     }
 
     async findAll(): Promise<ItemEntity[]> {
         const items = await this.prisma.item.findMany();
-        
+
         return items.map(
             (I) => this.loadEntity(I)
         );
@@ -46,7 +84,7 @@ export class ItemRepository {
                 item_id: id
             }
         });
-        
+
         return this.loadEntity(items);
     }
     //category_id로 조회
@@ -92,8 +130,8 @@ export class ItemRepository {
 
     //아이템 삭제
     async remove(id: string): Promise<void> {
-        await this.prisma.item.delete({ 
-            where: { item_id: id } 
+        await this.prisma.item.delete({
+            where: { item_id: id }
         });
     }
 

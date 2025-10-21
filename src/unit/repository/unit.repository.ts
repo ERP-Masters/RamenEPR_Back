@@ -58,18 +58,18 @@ export class UnitRepository {
         );
     }
 
-    async update(id: string, data: CreateUnitDto): Promise<UnitEntity> {
+    async update(id: number, data: CreateUnitDto): Promise<UnitEntity> {
         const units = await this.prisma.unit.update({
-            where: { unit_id: id },
+            where: { id: id },
             data
         });
 
         return this.loadEntity(units);
     }
 
-    async changeUseState(id: string, state: UseState): Promise<UnitEntity> {
+    async changeUseState(id: number, state: UseState): Promise<UnitEntity> {
         const unit = await this.prisma.unit.update({
-            where: { unit_id: id },
+            where: { id: id },
             data: { isused: state },
         });
 

@@ -70,7 +70,7 @@ export class VendorRepository {
             data: {
                 ...data,
                 vendor_id,
-                isused: data.isused ?? UseState.USED,
+                isused: UseState.USED,
             },
         });
 

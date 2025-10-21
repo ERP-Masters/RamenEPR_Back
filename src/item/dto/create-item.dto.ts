@@ -1,10 +1,6 @@
 import { IsString, IsInt, IsDateString, IsNotEmpty } from 'class-validator';
 
 export class CreateItemDto { 
-    @IsString()
-    @IsNotEmpty()
-    item_id: string; //내부 아이디, ITEM_001 같은 의미
-
     @IsInt()
     @IsNotEmpty()
     category_id: number;

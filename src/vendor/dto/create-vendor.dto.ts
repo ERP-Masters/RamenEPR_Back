@@ -19,6 +19,5 @@ export class CreateVendorDto {
     address: string;
 
     @IsEnum(UseState)
-    @IsNotEmpty()
     isused: UseState;
 }

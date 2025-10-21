@@ -27,7 +27,7 @@ export class WarehouseService {
   }
 
   // 창고 ID 기준 조회
-  async findByWarehouseId(id: number): Promise<WarehouseEntity> {
+  async findByWarehouseId(id: string): Promise<WarehouseEntity> {
     const warehouse = await this.warehouseRepository.findByWarehouseId(id);
     if (!warehouse) {
       throw new NotFoundException(`Warehouse with id ${id} not found`);

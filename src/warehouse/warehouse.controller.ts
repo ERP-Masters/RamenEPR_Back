@@ -27,7 +27,7 @@ export class WarehouseController {
   // 특정 창고 ID 조회
   @Get(':id')
   async findById(@Param('id') id: string) {
-    return this.warehouseService.findByWarehouseId(+id);
+    return this.warehouseService.findByWarehouseId(id);
   }
 
   // 특정 위치로 창고 조회

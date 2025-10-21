@@ -21,7 +21,7 @@ export class BranchService {
     return this.branchRepository.notUsedBranch();
   }
 
-  async findById(id: number): Promise<BranchEntity> {
+  async findById(id: string): Promise<BranchEntity> {
     const branch = await this.branchRepository.findById(id);
     if (!branch) throw new NotFoundException(`지점 id: ${id}가 존재하지 않습니다. `);
     return branch;

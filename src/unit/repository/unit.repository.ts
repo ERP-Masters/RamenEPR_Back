@@ -7,10 +7,11 @@ import { UseState } from "@prisma/client";
 
 @Injectable()
 export class UnitRepository {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService) { }
 
     private loadEntity(unit: any): UnitEntity {
         return new UnitEntity(
+            unit.id,
             unit.unit_id,
             unit.code,
             unit.name,
@@ -18,17 +19,30 @@ export class UnitRepository {
         );
     }
 
+
+    private async generateUnitId(): Promise<string> {
+        const count = await this.prisma.unit.count();
+        return `UNIT_${(count + 1).toString().padStart(4, "0")}`;
+    }
+
+    /** 단위 생성 (ERP 코드 자동 부여 포함) */
     async create(data: CreateUnitDto): Promise<UnitEntity> {
-        const units = await this.prisma.unit.create({ 
-            data 
+        const unit_id = await this.generateUnitId();
+
+        const unit = await this.prisma.unit.create({
+            data: {
+                ...data,
+                unit_id,
+                isused: data.isused ?? UseState.USED, // 기본값 설정
+            },
         });
 
-        return this.loadEntity(units);
+        return this.loadEntity(unit);
     }
 
     async findAll(): Promise<UnitEntity[]> {
         const units = await this.prisma.unit.findMany();
-        
+
         return units.map(
             (u) => this.loadEntity(u)
         );
@@ -46,7 +60,7 @@ export class UnitRepository {
 
     async update(id: number, data: CreateUnitDto): Promise<UnitEntity> {
         const units = await this.prisma.unit.update({
-            where: { unit_id: id }, 
+            where: { id: id },
             data
         });
 
@@ -55,7 +69,7 @@ export class UnitRepository {
 
     async changeUseState(id: number, state: UseState): Promise<UnitEntity> {
         const unit = await this.prisma.unit.update({
-            where: { unit_id: id },
+            where: { id: id },
             data: { isused: state },
         });
 

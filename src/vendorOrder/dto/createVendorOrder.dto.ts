@@ -8,11 +8,15 @@ export class CreateVendorOrderDto {
 
     @IsInt()
     @IsNotEmpty()
+    wh_id: number;
+
+    @IsInt()
+    @IsNotEmpty()
     vendor_id: number;
 
     @IsString()
     @IsNotEmpty()
-    item_id: string;//외부 사용 ID
+    item_id: number;//외부 사용 ID
 
     @IsInt()
     @IsNotEmpty()

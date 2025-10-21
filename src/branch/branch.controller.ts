@@ -25,11 +25,11 @@ export class BranchController {
 
   @Get(':id')
   async findById(@Param('id') id: string) {
-    return this.branchService.findById(+id);
+    return this.branchService.findById(id);
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateBranchDto) {
+  async update(@Param('id') id: number, @Body() dto: UpdateBranchDto) {
     return this.branchService.update(+id, dto);
   }
 

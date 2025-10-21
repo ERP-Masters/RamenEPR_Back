@@ -1,5 +1,6 @@
 export class ItemEntity {
     constructor (
+        public readonly id: number,
         public readonly item_id: string,
         public readonly category_id: number,
         public readonly name: string,

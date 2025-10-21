@@ -31,7 +31,7 @@ export class CategoryService {
                 id, state
             );
         return {
-            message: "카테고리 ${id}의 상태가 ${state}로 변경되었습니다.",
+            message: `카테고리 ${id}의 상태가 ${state}로 변경되었습니다.`,
             category: updated,
         }
     }

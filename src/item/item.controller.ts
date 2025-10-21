@@ -49,13 +49,13 @@ export class ItemController {
 
   // UPDATE
   @Put(":id")
-  async update(@Param("id") id: string, @Body() dto: UpdateItemDto) {
+  async update(@Param("id") id: number, @Body() dto: UpdateItemDto) {
     return this.itemService.update(id, dto);
   }
 
   // DELETE
   @Delete(":id")
-  async remove(@Param("id") id: string) {
+  async remove(@Param("id") id: number) {
     return this.itemService.remove(id);
   }
 

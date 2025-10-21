@@ -7,12 +7,13 @@ import { OrderStatus } from "@prisma/client";
 
 @Injectable()
 export class VendorOrderRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
-  /** ✅ Entity 변환 (중복 제거용) */
+
   private loadEntity(order: any): VendorOrderEntity {
     return new VendorOrderEntity(
       order.vendor_order_id,
+      order.wh_id,
       order.vendor_id,
       order.item_id,
       order.quantity,
@@ -20,14 +21,64 @@ export class VendorOrderRepository {
     );
   }
 
-  /**거래처 발주 생성 */
+  private async generateVendorOrderId(
+    vendor_id: number,
+    item_id: number,
+  ): Promise<string> {
+    
+    const vendor = await this.prisma.vendor.findUnique({
+      where: { id: vendor_id },
+      select: { vendor_id: true },
+    });
+
+    const item = await this.prisma.item.findUnique({
+      where: { id: item_id },
+      select: { item_id: true },
+    });
+
+    if (!vendor || !item) {
+      throw new Error("해당 거래처 또는 품목을 찾을 수 없습니다.");
+    }
+
+    const regionMatch = vendor.vendor_id.match(/^VD_([A-Z]+)_\d+$/);
+    const groupMatch = item.item_id.match(/^IT_([A-Z]+)_\d+$/);
+
+    const region = regionMatch ? regionMatch[1] : "ETC";
+    const group = groupMatch ? groupMatch[1] : "ETC";
+
+    const count = await this.prisma.vendorOrder.count({
+      where: {
+        vendor_order_id: { startsWith: `VDOD_${region}_${group}_` },
+      },
+    });
+
+    return `VDOD_${region}_${group}_${(count + 1)
+      .toString()
+      .padStart(4, "0")}`;
+  }
+
+  /** 거래처 발주 생성 */
   async create(data: CreateVendorOrderDto): Promise<VendorOrderEntity> {
+    const vendor_order_id = await this.generateVendorOrderId(
+      data.vendor_id,
+      data.item_id,
+    );
+
     const order = await this.prisma.vendorOrder.create({
-      data,
+      data: {
+        vendor_order_id,
+        vendor_id: data.vendor_id,
+        item_id: data.item_id,
+        wh_id: data.wh_id,
+        quantity: data.quantity,
+        status: data.status ?? OrderStatus.PENDING,
+      },
     });
 
     return this.loadEntity(order);
   }
+
+
 
   /**전체 발주 조회*/
   async findAll(): Promise<VendorOrderEntity[]> {
@@ -116,7 +167,7 @@ export class VendorOrderRepository {
   async cancelOrder(id: number): Promise<VendorOrderEntity> {
     const order = await this.prisma.vendorOrder.update({
       where: { id },
-      data: { status: OrderStatus.CANCLE },
+      data: { status: OrderStatus.CANCELED },
     });
 
     return this.loadEntity(order);

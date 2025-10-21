@@ -4,14 +4,16 @@ import { CategoryEntity } from "../entities/category.entity";
 import { CreateCategoryDto } from "../dto/create-category.dto";
 import { UpdateCategoryDto } from "../dto/update-category.dto";
 import { UseState } from "@prisma/client";
+import { register } from "module";
 
 @Injectable()
 export class CategoryRepository {
     //prisma Service 의존성 주입
     constructor(private readonly prisma: PrismaService) {}
-
+    
     private loadEntity(category: any): CategoryEntity {
         return new CategoryEntity(
+            category.id,
             category.category_id, 
             category.group , 
             category.category_name,
@@ -19,15 +21,34 @@ export class CategoryRepository {
         );
     }
 
+    private async generateCategoryId(category: string): Promise<string> {
+        const count = await this.prisma.category.count({
+            where: { category_id: {
+                startsWith: `CT_`
+            }},
+        });
+
+        return `CT_${(count + 1).toString().padStart(4,"0")}`;
+    }
+
     //카테고리 생성
     async create(data: CreateCategoryDto ): Promise<CategoryEntity> {
-        const category = await this.prisma.category.create({ data });
+        const category_id = await this.generateCategoryId(data.group);
+        
+        const category = await this.prisma.category.create({ 
+            data : {
+                ...data,
+                category_id,
+            },
+        });
+
         return this.loadEntity(category);
     }
 
     //카테고리 조회
     async findAll(): Promise<CategoryEntity[]> {
         const category = await this.prisma.category.findMany();
+        
         return category.map(
             (c) => this.loadEntity(c)
         );
@@ -52,7 +73,7 @@ export class CategoryRepository {
     async update(id: number, data: UpdateCategoryDto): Promise<CategoryEntity> {
         const category = await this.prisma.category.update({ 
             where: { 
-                category_id: id 
+                id: id 
             }, 
             data
         });
@@ -63,7 +84,7 @@ export class CategoryRepository {
     async changeUseState(id: number, state: UseState): Promise<CategoryEntity> {
         const category = await this.prisma.category.update({ 
             where: {
-                    category_id: id 
+                    id: id 
             },
             data: {
                 isused: state

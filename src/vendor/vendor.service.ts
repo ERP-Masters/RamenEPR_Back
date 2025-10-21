@@ -27,7 +27,7 @@ export class VendorService {
         return this.vendorRepository.findIdAndName();
     }
 
-    async findOne(id: number): Promise<VendorEntity> {
+    async findOne(id: string): Promise<VendorEntity> {
         const vendor = await this.vendorRepository.findOne(id);
         if (!vendor) throw new NotFoundException("Not found Vendor");
         else return vendor;

@@ -156,11 +156,11 @@ export class BranchRepository {
 
   /** 상태 변경 (USE / NOTUSE) */
   async changeUseState(
-    branchId: string,
+    branchId: number,
     state: UseState,
   ): Promise<BranchEntity> {
     const branch = await this.prisma.branch.update({
-      where: { branch_id: branchId },
+      where: { id: branchId },
       data: { isused: state },
     });
 

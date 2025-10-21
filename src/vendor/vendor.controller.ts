@@ -30,7 +30,7 @@ export class VendorController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.vendorService.findOne(+id);
+    return this.vendorService.findOne(id);
   }
 
   @Put(':id')

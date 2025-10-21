@@ -34,6 +34,7 @@ export class VendorRepository {
 
     private loadEntity(vendor: any): VendorEntity {
         return new VendorEntity(
+            vendor.id,
             vendor.vendor_id,
             vendor.name,
             vendor.manager,
@@ -111,9 +112,9 @@ export class VendorRepository {
     }
 
     //update vendor info.
-    async update(id: string, data: UpdateVendorDto): Promise<VendorEntity> {
+    async update(id: number, data: UpdateVendorDto): Promise<VendorEntity> {
         const vendor = await this.prisma.vendor.update({
-            where: { vendor_id: id },
+            where: { id: id },
             data
         });
 
@@ -121,9 +122,9 @@ export class VendorRepository {
     }
 
     //Remove specific vender
-    async changeUseState(id: string, state: UseState): Promise<VendorEntity> {
+    async changeUseState(id: number, state: UseState): Promise<VendorEntity> {
         const vendor = await this.prisma.vendor.update({
-            where: { vendor_id: id },
+            where: { id: id },
             data: { isused: state }
         });
 

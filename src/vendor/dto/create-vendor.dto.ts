@@ -1,7 +1,7 @@
 import { Prisma, UseState } from '@prisma/client';
 import { IsString, IsEmail, IsNotEmpty, IsEnum} from 'class-validator';
 
-export class CreateVendorDto implements Prisma.VendorCreateInput {
+export class CreateVendorDto {
     @IsString()
     @IsNotEmpty()
     name: string;

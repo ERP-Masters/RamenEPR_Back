@@ -114,9 +114,9 @@ export class ItemRepository {
     }
 
     //아이템 수정
-    async update(id: string, data: UpdateItemDto): Promise<ItemEntity> {
+    async update(id: number, data: UpdateItemDto): Promise<ItemEntity> {
         const items = await this.prisma.item.update({
-            where: { item_id: id },
+            where: { id: id },
             data: {
                 ...data,
                 expiry_date: data.expiry_date

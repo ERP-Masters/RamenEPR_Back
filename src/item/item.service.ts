@@ -26,17 +26,15 @@ export class ItemService {
   }
 
   // UPDATE
-  async update(id: string, dto: UpdateItemDto): Promise<ItemEntity> {
+  async update(id: number, dto: UpdateItemDto): Promise<ItemEntity> {
     // 존재 확인
-    const existing = await this.itemRepository.findOne(id);
+    const existing = await this.itemRepository.update(id,dto);
     if (!existing) throw new NotFoundException(`Item with id ${id} not found`);
     return this.itemRepository.update(id, dto);
   }
 
   // DELETE
-  async remove(id: string): Promise<void> {
-    const existing = await this.itemRepository.findOne(id);
-    if (!existing) throw new NotFoundException(`Item with id ${id} not found`);
+  async remove(id: number): Promise<void> {
     return this.itemRepository.remove(id);
   }
 

@@ -70,10 +70,10 @@ export class CategoryRepository {
     }
     
     //카레고리 수정
-    async update(id: string, data: UpdateCategoryDto): Promise<CategoryEntity> {
+    async update(id: number, data: UpdateCategoryDto): Promise<CategoryEntity> {
         const category = await this.prisma.category.update({ 
             where: { 
-                category_id: id 
+                id: id 
             }, 
             data
         });
@@ -81,10 +81,10 @@ export class CategoryRepository {
         return this.loadEntity(category);
     }
 
-    async changeUseState(id: string, state: UseState): Promise<CategoryEntity> {
+    async changeUseState(id: number, state: UseState): Promise<CategoryEntity> {
         const category = await this.prisma.category.update({ 
             where: {
-                    category_id: id 
+                    id: id 
             },
             data: {
                 isused: state

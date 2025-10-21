@@ -11,6 +11,7 @@ export class UnitRepository {
 
     private loadEntity(unit: any): UnitEntity {
         return new UnitEntity(
+            unit.id,
             unit.unit_id,
             unit.code,
             unit.name,

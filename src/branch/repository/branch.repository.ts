@@ -145,9 +145,9 @@ export class BranchRepository {
   }
 
   /** 수정 (id → branch_id 기반으로 변경) */
-  async update(branchId: string, data: UpdateBranchDto): Promise<BranchEntity> {
+  async update(branchId: number, data: UpdateBranchDto): Promise<BranchEntity> {
     const branch = await this.prisma.branch.update({
-      where: { branch_id: branchId },
+      where: { id: branchId },
       data,
     });
 

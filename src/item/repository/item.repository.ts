@@ -129,9 +129,9 @@ export class ItemRepository {
     }
 
     //아이템 삭제
-    async remove(id: string): Promise<void> {
+    async remove(id: number): Promise<void> {
         await this.prisma.item.delete({
-            where: { item_id: id }
+            where: { id: id }
         });
     }
 

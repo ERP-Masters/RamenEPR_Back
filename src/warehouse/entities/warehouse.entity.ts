@@ -2,6 +2,7 @@ import { UseState } from "@prisma/client";
 
 export class WarehouseEntity {
   constructor(
+    public readonly id: number,
     public readonly warehouse_id: number,
     public readonly name: string,
     public readonly location: string,

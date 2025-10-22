@@ -9,4 +9,4 @@ import { PrismaService } from "src/database/prisma.service";
     providers: [VendorOrderService, VendorOrderRepository
         , PrismaService]
 })
-export class ItemModule {}
+export class vendorOrderModule {}

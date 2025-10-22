@@ -4,6 +4,8 @@ import { UpdateItemDto } from "../dto/update-item.dto";
 
 import { PrismaService } from "src/database/prisma.service";
 import { ItemEntity } from "../entities/item.entity";
+import { UseState } from "@prisma/client";
+
 
 @Injectable()
 export class ItemRepository {
@@ -32,6 +34,7 @@ export class ItemRepository {
             item.vendor_id,
             item.unit_price,
             item.expiry_date,
+            item.isused
         );
     }
 
@@ -70,10 +73,22 @@ export class ItemRepository {
     }
 
     async findAll(): Promise<ItemEntity[]> {
-        const items = await this.prisma.item.findMany();
+        const items = await this.prisma.item.findMany({
+            where: { isused: UseState.USED }
+        });
 
         return items.map(
             (I) => this.loadEntity(I)
+        );
+    }
+
+    async findNotUsedItem(): Promise<ItemEntity[]> {
+        const items = await this.prisma.item.findMany({
+            where: { isused: UseState.NOTUSED }
+        })
+
+        return items.map(
+            (i) => this.loadEntity(i)
         );
     }
 
@@ -87,6 +102,7 @@ export class ItemRepository {
 
         return this.loadEntity(items);
     }
+
     //category_id로 조회
     async findItemByCategoryId(id: number): Promise<ItemEntity[]> {
         const items = await this.prisma.item.findMany({
@@ -129,10 +145,13 @@ export class ItemRepository {
     }
 
     //아이템 삭제
-    async remove(id: number): Promise<void> {
-        await this.prisma.item.delete({
-            where: { id: id }
+    async changeUseState(id: number, state: UseState): Promise<ItemEntity> {
+        const item = await this.prisma.item.update({
+            where: { id: id },
+            data: { isused: state },
         });
+
+        return this.loadEntity(item);
     }
 
     async searchByName(keyword: string): Promise<ItemEntity[]> {

@@ -79,7 +79,9 @@ export class VendorRepository {
 
     //find All Vendor
     async findAll(): Promise<VendorEntity[]> {
-        const vendors = await this.prisma.vendor.findMany();
+        const vendors = await this.prisma.vendor.findMany({
+            where: { isused: UseState.USED },
+        });
 
         return vendors.map(
             (v) => this.loadEntity(v)

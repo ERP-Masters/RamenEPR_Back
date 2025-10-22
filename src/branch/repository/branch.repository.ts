@@ -78,7 +78,9 @@ export class BranchRepository {
 
   /** 전체 조회 */
   async findAll(): Promise<BranchEntity[]> {
-    const branches = await this.prisma.branch.findMany();
+    const branches = await this.prisma.branch.findMany({
+      where: { isused: UseState.USED },
+    });
 
     if (!branches.length) {
       throw new NotFoundException("현재 등록된 지점이 없습니다.");

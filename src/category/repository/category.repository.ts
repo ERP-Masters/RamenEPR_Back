@@ -47,7 +47,9 @@ export class CategoryRepository {
 
     //카테고리 조회
     async findAll(): Promise<CategoryEntity[]> {
-        const category = await this.prisma.category.findMany();
+        const category = await this.prisma.category.findMany({
+            where: { isused: UseState.USED }
+        });
         
         return category.map(
             (c) => this.loadEntity(c)

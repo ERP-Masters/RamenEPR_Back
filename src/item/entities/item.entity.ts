@@ -1,3 +1,5 @@
+import { UseState } from "@prisma/client";
+
 export class ItemEntity {
     constructor (
         public readonly id: number,
@@ -7,6 +9,7 @@ export class ItemEntity {
         public readonly unit_id: number,
         public readonly vendor_id: number,
         public readonly unit_price: number,
-        public readonly expiry_date: Date
+        public readonly expiry_date: Date,
+        public readonly isused: UseState
     ) {}
 }

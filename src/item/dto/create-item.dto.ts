@@ -1,4 +1,5 @@
-import { IsString, IsInt, IsDateString, IsNotEmpty } from 'class-validator';
+import { IsString, IsInt, IsDateString, IsEnum, IsNotEmpty } from 'class-validator';
+import { UseState } from '@prisma/client';
 
 export class CreateItemDto { 
     @IsInt()
@@ -24,4 +25,7 @@ export class CreateItemDto {
     @IsInt()
     @IsNotEmpty()
     vendor_id: number;
+
+    @IsEnum(UseState)
+    isused: UseState;
 }

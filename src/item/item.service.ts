@@ -3,6 +3,7 @@ import { ItemRepository } from "./repository/item.repository";
 import { CreateItemDto } from "./dto/create-item.dto";
 import { UpdateItemDto } from "./dto/update-item.dto";
 import { ItemEntity } from "./entities/item.entity";
+import { UseState } from "@prisma/client";
 
 @Injectable()
 export class ItemService {
@@ -25,6 +26,10 @@ export class ItemService {
     return item;
   }
 
+  async findNotUsedItem(): Promise<ItemEntity[]> {
+    return this.itemRepository.findNotUsedItem();
+  }
+
   // UPDATE
   async update(id: number, dto: UpdateItemDto): Promise<ItemEntity> {
     // 존재 확인
@@ -33,9 +38,14 @@ export class ItemService {
     return this.itemRepository.update(id, dto);
   }
 
-  // DELETE
-  async remove(id: number): Promise<void> {
-    return this.itemRepository.remove(id);
+  // change State
+  async changeUseState(id: number, state: UseState):
+    Promise<{ message: string; item: ItemEntity }> {
+        const updated = await this.itemRepository.changeUseState(id, state);
+    return {
+      message: "지점 ${id}의 상태가 ${state}로 변경되었습니다.",
+      item: updated,
+    };
   }
 
   // 카테고리별 조회

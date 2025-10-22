@@ -11,6 +11,7 @@ import {
 import { ItemService } from "./item.service";
 import { CreateItemDto } from "./dto/create-item.dto";
 import { UpdateItemDto } from "./dto/update-item.dto";
+import { UseState } from "@prisma/client";
 
 @Controller("items")
 export class ItemController {
@@ -41,6 +42,11 @@ export class ItemController {
     return this.itemService.findAll();
   }
 
+  @Get('state')
+  async findNotUsedItem() {
+    return this.itemService.findNotUsedItem();
+  }
+
   // READ - 단건 조회
   @Get(":id")
   async findOne(@Param("id") id: string) {
@@ -53,11 +59,17 @@ export class ItemController {
     return this.itemService.update(id, dto);
   }
 
-  // DELETE
-  @Delete(":id")
-  async remove(@Param("id") id: number) {
-    return this.itemService.remove(id);
+  // change State
+  @Put('changestate/:id')
+  async changeUseState(
+    @Param('id')
+    id: number,
+    @Body('state')
+    state: UseState
+  ) {
+    return this.itemService.changeUseState(+id, state);
   }
+
 
   // 유통기한 임박 품목 조회
   @Get("expiring/:days")

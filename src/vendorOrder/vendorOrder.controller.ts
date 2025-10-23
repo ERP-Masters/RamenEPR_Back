@@ -6,6 +6,7 @@ import {
   Body,
   Param,
   Query,
+  BadRequestException,
 } from "@nestjs/common";
 import { VendorOrderService } from "./vendorOrder.service";
 import { CreateVendorOrderDto } from "./dto/createVendorOrder.dto";
@@ -28,15 +29,38 @@ export class VendorOrderController {
     return this.vendorOrderService.findAll();
   }
 
+    // 기간별 조회
+  @Get("period")
+  async findByDateRange(
+    @Query("start") start: string,
+    @Query("end") end: string,
+  ) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+
+    // ① 유효성 검사
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      throw new BadRequestException("잘못된 날짜 형식입니다. YYYY-MM-DD 형식을 사용하세요.");
+    }
+
+    // ② 날짜 순서 검사
+    if (startDate > endDate) {
+      throw new BadRequestException("시작 날짜는 종료 날짜보다 이전이어야 합니다.");
+    }
+
+    // ③ 서비스 호출
+    return this.vendorOrderService.findByDateRange(startDate, endDate);
+  }
+
   // 단일 발주 조회
   @Get(":id")
-  async findById(@Param("id") id: string) {
+  async findById(@Param("id") id: number) {
     return this.vendorOrderService.findById(+id);
   }
 
   // 거래처별 발주 조회
   @Get("vendor/:vendorId")
-  async findByVendor(@Param("vendorId") vendorId: string) {
+  async findByVendor(@Param("vendorId") vendorId: number) {
     return this.vendorOrderService.findByVendor(+vendorId);
   }
 
@@ -46,27 +70,15 @@ export class VendorOrderController {
     return this.vendorOrderService.findByStatus(status);
   }
 
-  // 기간별 조회
-  @Get("period")
-  async findByDateRange(
-    @Query("start") start: string,
-    @Query("end") end: string,
-  ) {
-    return this.vendorOrderService.findByDateRange(
-      new Date(start),
-      new Date(end),
-    );
-  }
-
   // 발주 수정
   @Patch(":id")
-  async update(@Param("id") id: string, @Body() dto: UpdateVendorOrderDto) {
+  async update(@Param("id") id: number, @Body() dto: UpdateVendorOrderDto) {
     return this.vendorOrderService.update(+id, dto);
   }
 
   // 발주 취소
   @Patch(":id/cancel")
-  async cancelOrder(@Param("id") id: string) {
+  async cancelOrder(@Param("id") id: number) {
     return this.vendorOrderService.cancelOrder(+id);
   }
 }

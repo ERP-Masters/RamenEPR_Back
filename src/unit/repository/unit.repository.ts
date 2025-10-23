@@ -41,7 +41,9 @@ export class UnitRepository {
     }
 
     async findAll(): Promise<UnitEntity[]> {
-        const units = await this.prisma.unit.findMany();
+        const units = await this.prisma.unit.findMany({
+            where: { isused: UseState.USED },
+        });
 
         return units.map(
             (u) => this.loadEntity(u)

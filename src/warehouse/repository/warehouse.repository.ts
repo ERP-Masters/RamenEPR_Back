@@ -74,7 +74,9 @@ export class WarehouseRepository {
 
   //전체 창고 조회
   async findAll(): Promise<WarehouseEntity[]> {
-    const warehouses = await this.prisma.warehouse.findMany();
+    const warehouses = await this.prisma.warehouse.findMany({
+      where: { isused: UseState.USED },
+    });
 
     return warehouses.map(
       (w) => this.loadEntity(w)

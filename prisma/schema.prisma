@@ -194,11 +194,12 @@ model BranchHygiene {
 /// 거래처
 model Vendor {
   id        Int      @id @default(autoincrement())
-  vendor_id String   @unique                        // ERP용
+  vendor_id String   @unique                     // ERP용
   name      String
   manager   String
   contact   String
   address   String
+  identification_number String
   isused    UseState
 
   items        Item[] 

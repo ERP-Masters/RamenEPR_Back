@@ -38,9 +38,10 @@ export class VendorRepository {
             vendor.vendor_id,
             vendor.name,
             vendor.manager,
+            vendor.identification_number,
             vendor.contact,
+            vendor.address,
             vendor.isused,
-            vendor.address
         );
     }
 

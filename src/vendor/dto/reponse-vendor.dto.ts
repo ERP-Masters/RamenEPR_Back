@@ -9,5 +9,4 @@ export class ResponseVendorDto {
     @IsString()
     @IsNotEmpty()
     name: string;
-
 }

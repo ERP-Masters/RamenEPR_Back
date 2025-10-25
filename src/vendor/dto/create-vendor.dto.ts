@@ -18,6 +18,10 @@ export class CreateVendorDto {
     @IsNotEmpty()
     address: string;
 
+    @IsString()
+    @IsNotEmpty()
+    identification_number: string;
+
     @IsEnum(UseState)
     isused: UseState;
 }

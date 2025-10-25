@@ -21,48 +21,77 @@ export class VendorOrderRepository {
     );
   }
 
-  private async generateVendorOrderId(
-    vendor_id: number,
-    item_id: number,
-  ): Promise<string> {
-    
+  /**
+   * 거래처별 발주번호를 생성한다.
+   * 형식: VO_<VENDORCODE>_<YYMMDD>_<SEQ>
+   * - 거래처 단위로 시퀀스 관리
+   * - 날짜가 바뀌면 시퀀스는 1부터 다시 시작
+   */
+  private async generateVendorOrderId(vendor_id: number): Promise<string> {
+    // 거래처 코드 조회
     const vendor = await this.prisma.vendor.findUnique({
       where: { id: vendor_id },
       select: { vendor_id: true },
     });
 
-    const item = await this.prisma.item.findUnique({
-      where: { id: item_id },
-      select: { item_id: true },
-    });
-
-    if (!vendor || !item) {
-      throw new Error("해당 거래처 또는 품목을 찾을 수 없습니다.");
+    if (!vendor || !vendor.vendor_id) {
+      throw new Error(`거래처 ID ${vendor_id}의 코드 정보를 찾을 수 없습니다.`);
     }
 
-    const regionMatch = vendor.vendor_id.match(/^VD_([A-Z]+)_\d+$/);
-    const groupMatch = item.item_id.match(/^IT_([A-Z]+)_\d+$/);
+    const vendorCode = vendor.vendor_id.toUpperCase();
 
-    const region = regionMatch ? regionMatch[1] : "ETC";
-    const group = groupMatch ? groupMatch[1] : "ETC";
+    // 날짜 포맷: YYMMDD
+    const date = new Date();
+    const formattedDate = date.toISOString().slice(2, 10).replace(/-/g, "");
 
+    // 거래처별 + 날짜별 시퀀스 카운트
     const count = await this.prisma.vendorOrder.count({
       where: {
-        vendor_order_id: { startsWith: `VDOD_${region}_${group}_` },
+        vendor_order_id: {
+          startsWith: `VO_${vendorCode}_${formattedDate}_`,
+        },
       },
     });
 
-    return `VDOD_${region}_${group}_${(count + 1)
-      .toString()
-      .padStart(4, "0")}`;
+    // 시퀀스 번호 3자리 고정
+    const seq = (count + 1).toString().padStart(3, "0");
+
+    // 최종 ID 생성
+    return `VO_${vendorCode}_${formattedDate}_${seq}`;
   }
 
+  async create(data: CreateVendorOrderDto): Promise<VendorOrderEntity>;
+  async create(data: CreateVendorOrderDto[]): Promise<VendorOrderEntity[]>;
+
   /** 거래처 발주 생성 */
-  async create(data: CreateVendorOrderDto): Promise<VendorOrderEntity> {
-    const vendor_order_id = await this.generateVendorOrderId(
-      data.vendor_id,
-      data.item_id,
-    );
+  async create(
+    data: CreateVendorOrderDto | CreateVendorOrderDto[],
+  ): Promise<VendorOrderEntity | VendorOrderEntity[]> {
+    if (Array.isArray(data)) {
+      const createdOrders: VendorOrderEntity[] = [];
+
+      for (const order of data) {
+        const vendor_order_id = await this.generateVendorOrderId(order.vendor_id);
+
+        const created = await this.prisma.vendorOrder.create({
+          data: {
+            vendor_order_id,
+            vendor_id: order.vendor_id,
+            item_id: order.item_id,
+            wh_id: order.wh_id,
+            quantity: order.quantity,
+            status: order.status ?? OrderStatus.PENDING,
+          },
+        });
+
+        createdOrders.push(this.loadEntity(created));
+      }
+
+      return createdOrders;
+    }
+
+    // 단일 건 처리
+    const vendor_order_id = await this.generateVendorOrderId(data.vendor_id);
 
     const order = await this.prisma.vendorOrder.create({
       data: {
@@ -77,8 +106,6 @@ export class VendorOrderRepository {
 
     return this.loadEntity(order);
   }
-
-
 
   /**전체 발주 조회*/
   async findAll(): Promise<VendorOrderEntity[]> {

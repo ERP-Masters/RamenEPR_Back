@@ -19,7 +19,7 @@ export class VendorOrderController {
 
   // 거래처 발주 생성
   @Post()
-  async create(@Body() dto: CreateVendorOrderDto) {
+  async create(@Body() dto: CreateVendorOrderDto | CreateVendorOrderDto[]) {
     return this.vendorOrderService.create(dto);
   }
 
@@ -38,17 +38,17 @@ export class VendorOrderController {
     const startDate = new Date(start);
     const endDate = new Date(end);
 
-    // ① 유효성 검사
+    //유효성 검사
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
       throw new BadRequestException("잘못된 날짜 형식입니다. YYYY-MM-DD 형식을 사용하세요.");
     }
 
-    // ② 날짜 순서 검사
+    //날짜 순서 검사
     if (startDate > endDate) {
       throw new BadRequestException("시작 날짜는 종료 날짜보다 이전이어야 합니다.");
     }
 
-    // ③ 서비스 호출
+    //서비스 호출
     return this.vendorOrderService.findByDateRange(startDate, endDate);
   }
 

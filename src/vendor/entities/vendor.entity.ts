@@ -6,8 +6,9 @@ export class VendorEntity {
         public readonly vendor_id: string,
         public readonly name: string,
         public readonly manager: string,
+        public readonly identification_number: string,
         public readonly contact: string,
-        public readonly isused: UseState,
         public readonly address: string,
+        public readonly isused: UseState,
     ) {}
 }

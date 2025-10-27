@@ -41,7 +41,7 @@ export class VendorService {
         Promise<{ message: string; vendor: VendorEntity }> {
            const updated = await this.vendorRepository.changeUseState(id, state);
         return {
-            message: "거래처 ${id}의 상태가 ${state}로 변경되었습니다.",
+            message: `거래처 ${id}의 상태가 ${state}로 변경되었습니다.`,
             vendor: updated,
         }  
     }

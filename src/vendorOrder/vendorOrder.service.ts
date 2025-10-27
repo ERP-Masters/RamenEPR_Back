@@ -7,10 +7,21 @@ import { OrderStatus } from "@prisma/client";
 
 @Injectable()
 export class VendorOrderService {
-  constructor(private readonly vendorOrderRepository: VendorOrderRepository) {}
+  constructor(private readonly vendorOrderRepository: VendorOrderRepository) { }
 
   // 거래처 발주 생성
-  async create(data: CreateVendorOrderDto): Promise<VendorOrderEntity> {
+  async create(data: CreateVendorOrderDto | CreateVendorOrderDto[]):
+    Promise<VendorOrderEntity | VendorOrderEntity[]> {
+    if (Array.isArray(data)) {
+      const results: VendorOrderEntity[] = [];
+      for (const order of data) {
+        const created = await this.vendorOrderRepository.create(order);
+        results.push(created);
+      }
+      return results;
+    }
+
+    // 단일 처리
     return this.vendorOrderRepository.create(data);
   }
 

@@ -45,6 +45,10 @@ model Inventory {
 
   warehouse Warehouse @relation(fields: [warehouse_id], references: [id])
   item      Item      @relation(fields: [item_id], references: [id])
+
+  lotTraces     LotTrace[]
+  
+  @@unique([warehouse_id, item_id, expiry_date])
 }
 
 /// 품목
@@ -68,6 +72,7 @@ model Item {
   category Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
   vendor   Vendor   @relation(fields: [vendor_id], references: [id], onDelete: Cascade)
   unit     Unit     @relation(fields: [unit_id], references: [id], onDelete: Cascade)
+
 }
 
 /// 단위(Unit)
@@ -107,9 +112,13 @@ model VendorOrder {
   status           OrderStatus
   created_at       DateTime @default(now())
 
+  shipment   Shipment?  @relation(fields: [shipment_id], references: [id])
   vendor    Vendor    @relation(fields: [vendor_id], references: [id])
   item      Item      @relation(fields: [item_id], references: [id])
   warehouse Warehouse @relation(fields: [wh_id], references: [id])
+
+  @@index([item_id, warehouse_id])
+  @@index([expiry_date])
 }
 
 /// 출하
@@ -130,8 +139,11 @@ model LotTrace {
   id               Int      @id @default(autoincrement())
   lot_id           String   @unique                        // ERP용
   item_id          Int
+  warehouse_id     Int
+  inventory_id     Int
   manufacture_date DateTime
   expiry_date      DateTime
+  received_date    DateTime @default(now())
   shipment_id      Int?
 
   item     Item      @relation(fields: [item_id], references: [id])

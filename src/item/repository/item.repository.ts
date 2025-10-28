@@ -24,6 +24,20 @@ export class ItemRepository {
         육수베이스: "BTROTH_BASE"
     }
 
+    private readonly CATEGORY_CODE_RANGE: Record<string, [number, number]> = {
+        MEAT: [0, 999],
+        SEAFOOD: [1000, 1999],
+        NOODLES: [2000, 2999],
+        VEGETABLES: [3000, 3999],
+        DAIRY: [4000, 4999],
+        EGGS: [5000, 5999],
+        PROCESSED: [6000, 6999],
+        SAUCES: [7000, 7999],
+        SEASONINGS: [8000, 8999],
+        SOUPS: [9000, 9499],
+        BROTH_BASE: [9500, 9999],
+    };
+
     private loadEntity(item: any): ItemEntity {
         return new ItemEntity(
             item.id,
@@ -41,36 +55,52 @@ export class ItemRepository {
     private async generateItemId(categoryId: number): Promise<string> {
         const category = await this.prisma.category.findUnique({
             where: { id: categoryId },
-            select: { group: true, category_name: true },
+            select: { group: true },
         });
 
         if (!category) {
             throw new NotFoundException(`카테고리 ID ${categoryId}를 찾을 수 없습니다.`);
         }
 
-        const categoryCode = category.group ?? "ETC";
+        const [start, end] = this.CATEGORY_CODE_RANGE[category.group] || [];
+        if (start === undefined)
+            throw new Error(`카테고리 ${category.group}의 코드 범위가 정의되지 않았습니다.`);
 
-        const count = await this.prisma.item.count({
-            where: { category_id: categoryId },
+        // 현재 카테고리 코드 중 가장 높은 item_id 찾기
+        const lastItem = await this.prisma.item.findFirst({
+            where: {
+                item_id: {
+                    gte: `IT_${start.toString().padStart(4, "0")}`,
+                    lte: `IT_${end.toString().padStart(4, "0")}`,
+                },
+            },
+            orderBy: { item_id: "desc" },
         });
 
-        return `IT_${categoryCode}_${(count + 1).toString().padStart(4, "0")}`;
+        const nextNumber = lastItem
+            ? parseInt(lastItem.item_id.replace("IT_", ""), 10) + 1
+            : start;
+
+        if (nextNumber > end)
+            throw new Error(`카테고리 ${category.group}의 코드 범위를 초과했습니다.`);
+
+        return `IT_${nextNumber.toString().padStart(4, "0")}`;
     }
 
     /** 품목 생성 (ERP 코드 자동 부여) */
-    async create(data: CreateItemDto): Promise<ItemEntity> {
-        const item_id = await this.generateItemId(data.category_id);
+  async create(data: CreateItemDto): Promise<ItemEntity> {
+    const item_id = await this.generateItemId(data.category_id);
 
-        const item = await this.prisma.item.create({
-            data: {
-                ...data,
-                item_id,
-                expiry_date: new Date(data.expiry_date),
-            },
-        });
+    const item = await this.prisma.item.create({
+      data: {
+        ...data,
+        item_id,
+        expiry_date: new Date(data.expiry_date),
+      },
+    });
 
-        return this.loadEntity(item);
-    }
+    return this.loadEntity(item);
+  }
 
     async findAll(): Promise<ItemEntity[]> {
         const items = await this.prisma.item.findMany({

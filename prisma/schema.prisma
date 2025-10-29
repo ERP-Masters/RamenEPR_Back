@@ -28,6 +28,7 @@ model Warehouse {
 
   inventory Inventory[]
   vendorOrders VendorOrder[]
+  lotTraces     LotTrace[]    
 }
 
 /// 재고
@@ -112,13 +113,10 @@ model VendorOrder {
   status           OrderStatus
   created_at       DateTime @default(now())
 
-  shipment   Shipment?  @relation(fields: [shipment_id], references: [id])
+  //shipment   Shipment?  @relation(fields: [shipment_id], references: [id])
   vendor    Vendor    @relation(fields: [vendor_id], references: [id])
   item      Item      @relation(fields: [item_id], references: [id])
   warehouse Warehouse @relation(fields: [wh_id], references: [id])
-
-  @@index([item_id, warehouse_id])
-  @@index([expiry_date])
 }
 
 /// 출하
@@ -147,8 +145,8 @@ model LotTrace {
   shipment_id      Int?
 
   item        Item          @relation(fields: [item_id], references: [id])
-  warehouse   Warehouse     @relation(fields: [warehouse_id, references:[id]])
-  inventory   Inventory     @relation(fields: [inventory_id], references: [id])
+  warehouse   Warehouse     @relation(fields: [warehouse_id], references:[id])
+  inventory   Inventory     @relation(fields: [inventory_id], references:[id])
   shipment    Shipment?     @relation(fields: [shipment_id], references: [id])
 
   @@index([item_id, warehouse_id])

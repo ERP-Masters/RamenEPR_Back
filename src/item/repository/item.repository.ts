@@ -88,19 +88,19 @@ export class ItemRepository {
     }
 
     /** 품목 생성 (ERP 코드 자동 부여) */
-  async create(data: CreateItemDto): Promise<ItemEntity> {
-    const item_id = await this.generateItemId(data.category_id);
+    async create(data: CreateItemDto): Promise<ItemEntity> {
+        const item_id = await this.generateItemId(data.category_id);
 
-    const item = await this.prisma.item.create({
-      data: {
-        ...data,
-        item_id,
-        expiry_date: new Date(data.expiry_date),
-      },
-    });
+        const item = await this.prisma.item.create({
+            data: {
+                ...data,
+                item_id,
+                expiry_date: new Date(data.expiry_date),
+            },
+        });
 
-    return this.loadEntity(item);
-  }
+        return this.loadEntity(item);
+    }
 
     async findAll(): Promise<ItemEntity[]> {
         const items = await this.prisma.item.findMany({

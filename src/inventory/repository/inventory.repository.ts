@@ -21,6 +21,9 @@ export class InventoryRepository {
         );
     }
 
-    //Iventory
+    private async generateInventoryId(tx: any): Promise<string> {
+        const count = await tx.inventory.count();
+        return `INV_${(count + 1).toString().padStart(4, "0")}`;
+    }
     
 }

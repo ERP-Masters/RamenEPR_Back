@@ -47,7 +47,7 @@ model Inventory {
   item      Item      @relation(fields: [item_id], references: [id])
 
   lotTraces     LotTrace[]
-  
+
   @@unique([warehouse_id, item_id, expiry_date])
 }
 
@@ -146,8 +146,13 @@ model LotTrace {
   received_date    DateTime @default(now())
   shipment_id      Int?
 
-  item     Item      @relation(fields: [item_id], references: [id])
-  shipment Shipment? @relation(fields: [shipment_id], references: [id])
+  item        Item          @relation(fields: [item_id], references: [id])
+  warehouse   Warehouse     @relation(fields: [warehouse_id, references:[id]])
+  inventory   Inventory     @relation(fields: [inventory_id], references: [id])
+  shipment    Shipment?     @relation(fields: [shipment_id], references: [id])
+
+  @@index([item_id, warehouse_id])
+  @@index([expiry_date])
 }
 
 /// 카테고리

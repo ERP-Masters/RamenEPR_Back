@@ -109,5 +109,28 @@ export class InventoryRepository {
             return inv;
         });
     }
+    /** 창고별 조회 */
+    async findByWarehouse(warehouseId: number) {
+        const inv = await this.prisma.inventory.findMany({
+            where: { warehouse_id: warehouseId },
+            include: { item: true },
+        });
+        return inv.map((v) => this.loadEntity(v));
+    }
+
+    /** LOT 조회 */
+    async findLotsByItem(itemId: number) {
+        return this.prisma.lotTrace.findMany({
+            where: { item_id: itemId },
+            orderBy: { received_date: "desc" },
+        });
+    }
+
+    /** 전체 재고 조회 */
+    async findAll(status?: string) {
+        const where = status ? { status: status as InventoryStatus } : {};
+        const inv = await this.prisma.inventory.findMany({ where });
+        return inv.map((v) => this.loadEntity(v));
+    }
 
 }

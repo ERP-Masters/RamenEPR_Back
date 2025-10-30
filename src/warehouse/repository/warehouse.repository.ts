@@ -50,9 +50,9 @@ export class WarehouseRepository {
       }
     }
 
-    // 같은 지역 내에서 몇 번째 지점인지 계산
-    const count = await this.prisma.branch.count({
-      where: { branch_id: { startsWith: `WH_${regionCode}_` } },
+    // 같은 지역 내에서 몇 번째 창고인지 계산
+    const count = await this.prisma.warehouse.count({
+      where: { warehouse_id: { startsWith: `WH_${regionCode}_` } },
     });
 
     return `WH_${regionCode}_${(count + 1).toString().padStart(4, "0")}`;

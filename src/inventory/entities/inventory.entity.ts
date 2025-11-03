@@ -7,7 +7,7 @@ export class InventoryEntity {
         public readonly warehouse_id: number,
         public readonly item_id: number,
         public readonly quantity: number,
-        public readonly satefty_stock: number,
+        public readonly safety_stock: number,
         public readonly store_date: Date,
         public readonly expiry_date: Date,
     ) {}

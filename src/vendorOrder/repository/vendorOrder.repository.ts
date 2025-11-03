@@ -38,7 +38,7 @@ export class VendorOrderRepository {
       throw new Error(`거래처 ID ${vendor_id}의 코드 정보를 찾을 수 없습니다.`);
     }
 
-    const vendorCode = vendor.vendor_id.toUpperCase();
+    const vendorCode = vendor.vendor_id.toUpperCase().replace("VD_", "");
 
     // 날짜 포맷: YYMMDD
     const date = new Date();

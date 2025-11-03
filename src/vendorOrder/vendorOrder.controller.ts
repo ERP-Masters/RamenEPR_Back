@@ -70,6 +70,12 @@ export class VendorOrderController {
     return this.vendorOrderService.findByStatus(status);
   }
 
+  //발주 상태 변경 (입고 자동 반영)
+  @Patch(":id/status")
+  async updateStatus(@Param("id") id: number, @Body("status") status: OrderStatus) {
+    return this.vendorOrderService.updateStatus(+id, status);
+  }
+
   // 발주 수정
   @Patch(":id")
   async update(@Param("id") id: number, @Body() dto: UpdateVendorOrderDto) {

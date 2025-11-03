@@ -3,10 +3,10 @@ import { InventoryController } from "./inventory.controller";
 import { InventoryService } from "./inventory.service";
 import { InventoryRepository } from "./repository/inventory.repository";
 import { PrismaService } from "src/database/prisma.service";
-import { vendorOrderModule } from "src/vendorOrder/vendorOrder.module";
+import { VendorOrderModule } from "src/vendorOrder/vendorOrder.module";
 
 @Module({
-  imports: [forwardRef(() => vendorOrderModule)],
+  imports: [forwardRef(() => VendorOrderModule)],
   controllers: [InventoryController],
   providers: [InventoryService, InventoryRepository, PrismaService],
   exports: [InventoryService],

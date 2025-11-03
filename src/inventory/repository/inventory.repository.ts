@@ -17,7 +17,7 @@ export class InventoryRepository {
             inven.warehouse_id,
             inven.item_id,
             inven.quantity,
-            inven.satefty_stock,
+            inven.safety_stock,
             inven.store_date,
             inven.expiry_date
         );
@@ -35,7 +35,7 @@ export class InventoryRepository {
         const seq = await tx.lotTrace.count({
             where: {
                 lot_id: {
-                    startWith: prefix
+                    startsWith: prefix
                 }
             }
         });

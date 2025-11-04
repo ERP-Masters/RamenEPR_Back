@@ -123,6 +123,7 @@ export class InventoryRepository {
     return inv.map((v) => this.loadEntity(v));
   }
 
+  /** 창고 이름 기준으로 조회 */
   async findByWarehouseName(warehouseName: string) {
     const warehouse = await this.prisma.warehouse.findFirst({
       where: { name: warehouseName },
@@ -138,14 +139,6 @@ export class InventoryRepository {
     });
 
     return inv.map((v) => this.loadEntity(v));
-  }
-
-  /** LOT 조회 */
-  async findLotsByItem(itemId: number) {
-    return this.prisma.lotTrace.findMany({
-      where: { item_id: itemId },
-      orderBy: { received_date: "desc" },
-    });
   }
 
   /** 전체 재고 조회 */

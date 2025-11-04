@@ -69,10 +69,9 @@ export class VendorOrderRepository {
   ): Promise<VendorOrderEntity | VendorOrderEntity[]> {
     if (Array.isArray(data)) {
       const createdOrders: VendorOrderEntity[] = [];
-
+      //여러 개를 한 번에 발주 할 시 생성되는 ID 번호 고정
+      const vendor_order_id = await this.generateVendorOrderId(data[0].vendor_id);
       for (const order of data) {
-        const vendor_order_id = await this.generateVendorOrderId(order.vendor_id);
-
         const created = await this.prisma.vendorOrder.create({
           data: {
             vendor_order_id,

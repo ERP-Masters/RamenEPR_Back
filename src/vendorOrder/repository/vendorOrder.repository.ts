@@ -18,6 +18,7 @@ export class VendorOrderRepository {
       order.vendor_id,
       order.item_id,
       order.quantity,
+      order.received_quantity,
       order.status,
     );
   }
@@ -80,6 +81,7 @@ export class VendorOrderRepository {
             item_id: order.item_id,
             wh_id: order.wh_id,
             quantity: order.quantity,
+            received_quantity: 0,
             status: order.status ?? OrderStatus.PENDING,
           },
         });
@@ -100,6 +102,7 @@ export class VendorOrderRepository {
         item_id: data.item_id,
         wh_id: data.wh_id,
         quantity: data.quantity,
+        received_quantity: 0,
         status: data.status ?? OrderStatus.PENDING,
       },
     });

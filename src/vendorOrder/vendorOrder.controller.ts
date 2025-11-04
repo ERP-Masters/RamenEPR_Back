@@ -15,7 +15,7 @@ import { OrderStatus } from "@prisma/client";
 
 @Controller("vendor-order")
 export class VendorOrderController {
-  constructor(private readonly vendorOrderService: VendorOrderService) {}
+  constructor(private readonly vendorOrderService: VendorOrderService) { }
 
   // 거래처 발주 생성
   @Post()
@@ -29,7 +29,7 @@ export class VendorOrderController {
     return this.vendorOrderService.findAll();
   }
 
-    // 기간별 조회
+  // 기간별 조회
   @Get("period")
   async findByDateRange(
     @Query("start") start: string,
@@ -75,6 +75,20 @@ export class VendorOrderController {
   async updateStatus(@Param("id") id: number, @Body("status") status: OrderStatus) {
     return this.vendorOrderService.updateStatus(+id, status);
   }
+
+ 
+  @Patch(":id/partial")
+  async markPartial(
+    @Param("id") id: string,
+    @Body("quantity") quantity: number,
+  ) {
+    if (!quantity || isNaN(Number(quantity))) {
+      throw new BadRequestException("quantity(입고 수량)을 보내야 합니다.");
+    }
+
+    return this.vendorOrderService.updateStatus(+id, OrderStatus.PARTIALLY, quantity);
+  }
+
 
   // 발주 수정
   @Patch(":id")

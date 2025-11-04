@@ -8,6 +8,7 @@ export class VendorOrderEntity {
         public readonly vendor_id: number,
         public readonly item_id: number,
         public readonly quantity: number,
+        public readonly received_quantity: number,
         public readonly status: OrderStatus
     ) {}
 }

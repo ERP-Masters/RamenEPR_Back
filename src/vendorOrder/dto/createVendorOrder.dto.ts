@@ -22,6 +22,9 @@ export class CreateVendorOrderDto {
     @IsNotEmpty()
     quantity: number;
 
+    @IsInt()
+    received_quantity: number;
+
     @IsEnum(OrderStatus)
     @IsNotEmpty()
     status: OrderStatus;

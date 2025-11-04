@@ -32,10 +32,10 @@ export class InventoryController {
     return this.inventoryService.findByWarehouse(+warehouseId);
   }
 
-  /** LOT 조회 */
-  @Get("lot/:itemId")
-  async findLotsByItem(@Param("itemId") itemId: number) {
-    return this.inventoryService.findLotsByItem(+itemId);
+  /** 창고 이름을 통한 조회 */
+  @Get('warehouse/:name')
+  async findByWarehouseName(@Param('name') name: string) {
+    return this.inventoryService.findByWarehouseName(name);
   }
 
   /** 전체 재고 조회 */

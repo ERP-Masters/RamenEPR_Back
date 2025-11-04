@@ -12,11 +12,13 @@ export class VendorOrderRepository {
 
   private loadEntity(order: any): VendorOrderEntity {
     return new VendorOrderEntity(
+      order.id,
       order.vendor_order_id,
       order.wh_id,
       order.vendor_id,
       order.item_id,
       order.quantity,
+      order.received_quantity,
       order.status,
     );
   }
@@ -69,10 +71,9 @@ export class VendorOrderRepository {
   ): Promise<VendorOrderEntity | VendorOrderEntity[]> {
     if (Array.isArray(data)) {
       const createdOrders: VendorOrderEntity[] = [];
-
+      //여러 개를 한 번에 발주 할 시 생성되는 ID 번호 고정
+      const vendor_order_id = await this.generateVendorOrderId(data[0].vendor_id);
       for (const order of data) {
-        const vendor_order_id = await this.generateVendorOrderId(order.vendor_id);
-
         const created = await this.prisma.vendorOrder.create({
           data: {
             vendor_order_id,
@@ -80,6 +81,7 @@ export class VendorOrderRepository {
             item_id: order.item_id,
             wh_id: order.wh_id,
             quantity: order.quantity,
+            received_quantity: 0,
             status: order.status ?? OrderStatus.PENDING,
           },
         });
@@ -100,6 +102,7 @@ export class VendorOrderRepository {
         item_id: data.item_id,
         wh_id: data.wh_id,
         quantity: data.quantity,
+        received_quantity: 0,
         status: data.status ?? OrderStatus.PENDING,
       },
     });

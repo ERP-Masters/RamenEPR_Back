@@ -37,6 +37,7 @@ model Inventory {
   inventory_id  String    @unique                        // ERP용 ID (예: "INV-0001")
   warehouse_id  Int
   item_id       Int
+  lot_id        String    @unique
   quantity      Int
   safety_stock  Int
   store_date    DateTime
@@ -110,6 +111,7 @@ model VendorOrder {
   vendor_id        Int
   item_id          Int
   quantity         Int
+  received_quantity Int           @default(0) // 누적 입고 수량
   status           OrderStatus
   created_at       DateTime @default(now())
 

@@ -6,7 +6,7 @@ import { calcExpiryDate } from "../../policy/expiry.policy";
 
 @Injectable()
 export class InventoryRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   private loadEntity(inven: any): InventoryEntity {
     return new InventoryEntity(
@@ -120,6 +120,23 @@ export class InventoryRepository {
       where: { warehouse_id: warehouseId },
       include: { item: true },
     });
+    return inv.map((v) => this.loadEntity(v));
+  }
+
+  async findByWarehouseName(warehouseName: string) {
+    const warehouse = await this.prisma.warehouse.findFirst({
+      where: { name: warehouseName },
+    });
+
+    if (!warehouse) {
+      throw new Error(`Warehouse not found: ${warehouseName}`);
+    }
+
+    const inv = await this.prisma.inventory.findMany({
+      where: { warehouse_id: warehouse.id },
+      include: { item: true },
+    });
+
     return inv.map((v) => this.loadEntity(v));
   }
 

@@ -32,8 +32,8 @@ export class InventoryService {
     return this.inventoryRepo.findByWarehouse(warehouseId);
   }
 
-  async findLotsByItem(itemId: number) {
-    return this.inventoryRepo.findLotsByItem(itemId);
+   async findByWarehouseName(warehouseName: string) {
+    return this.inventoryRepo.findByWarehouseName(warehouseName);
   }
 
   async findAll(status?: string) {

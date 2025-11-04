@@ -12,6 +12,7 @@ export class VendorOrderRepository {
 
   private loadEntity(order: any): VendorOrderEntity {
     return new VendorOrderEntity(
+      order.id,
       order.vendor_order_id,
       order.wh_id,
       order.vendor_id,

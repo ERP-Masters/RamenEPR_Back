@@ -6,6 +6,7 @@ export class InventoryEntity {
         public readonly inventory_id: string,
         public readonly warehouse_id: number,
         public readonly item_id: number,
+        public readonly lot_id: string,
         public readonly quantity: number,
         public readonly safety_stock: number,
         public readonly store_date: Date,

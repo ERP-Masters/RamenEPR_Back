@@ -44,20 +44,42 @@ export class VendorOrderService {
     return order;
   }
 
-  // 발주 상태 변경 (핵심)
-  async updateStatus(id: number, status: OrderStatus): Promise<VendorOrderEntity> {
-    const order = await this.vendorOrderRepository.findById(id);
+  // 발주 상태 변경 
+  async updateStatus(
+    id: number,
+    status: OrderStatus,
+    partialQuantity?: number,
+  ): Promise<VendorOrderEntity> {
+    // 항상 최신 상태로 다시 조회
+    let order = await this.vendorOrderRepository.findById(id);
     if (!order) throw new NotFoundException(`발주 ID ${id}를 찾을 수 없습니다.`);
 
+    // 부분입고 로직
+    if (status === OrderStatus.PARTIALLY && partialQuantity) {
+      // 최신 상태 재조회
+      order = await this.vendorOrderRepository.findById(id);
+      // 부분입고 처리
+      const result = await this.inventoryService.receivePartialFromOrder(
+        order,
+        partialQuantity,
+      );
+
+      // 처리 후 다시 최신 상태 반영
+      const updatedOrder = await this.vendorOrderRepository.findById(id);
+      return updatedOrder;
+    }
+
+    // 일반 상태 변경
     const updated = await this.vendorOrderRepository.update(id, { status });
 
-    // 발주가 완료(COMPLETED)되면 인벤토리에 자동 입고 처리
+    // 전체입고 처리
     if (status === OrderStatus.COMPLETED) {
       await this.inventoryService.receiveStockFromOrder(updated);
     }
 
     return updated;
   }
+
 
   // 거래처별 발주 조회
   async findByVendor(vendorId: number): Promise<VendorOrderEntity[]> {

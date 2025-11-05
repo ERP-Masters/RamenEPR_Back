@@ -268,6 +268,14 @@ export class InventoryRepository {
     return inv.map((v) => this.loadEntity(v));
   }
 
+  async findLotsByItem(itemId: number) {
+    return this.prisma.lotTrace.findMany({
+      where: { item_id: itemId },
+      orderBy: { received_date: "desc" },
+    });
+  }
+
+
   async findAll(status?: string) {
     const where = status ? { status: status as InventoryStatus } : {};
     const inv = await this.prisma.inventory.findMany({ where });

@@ -33,7 +33,7 @@ export class InventoryController {
   }
 
   /** 창고 이름을 통한 조회 */
-  @Get('warehouse/:name')
+  @Get('warehouse/name/:name')
   async findByWarehouseName(@Param('name') name: string) {
     return this.inventoryService.findByWarehouseName(name);
   }

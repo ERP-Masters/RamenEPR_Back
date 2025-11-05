@@ -38,6 +38,15 @@ export class InventoryController {
     return this.inventoryService.findByWarehouseName(name);
   }
 
+  @Get('lot/:id')
+  async findbyLotid(
+    @Param('id')
+    id: number
+  ) {
+    return this.inventoryService.findLotsByItem(id);
+  }
+
+
   /** 전체 재고 조회 */
   @Get()
   async findAll(@Query("status") status?: string) {

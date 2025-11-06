@@ -145,6 +145,7 @@ model LotTrace {
   expiry_date      DateTime
   received_date    DateTime @default(now())
   shipment_id      Int?
+  action_type      LotActionType @default(INBOUND)
 
   item        Item          @relation(fields: [item_id], references: [id])
   warehouse   Warehouse     @relation(fields: [warehouse_id], references:[id])
@@ -301,4 +302,9 @@ enum CategoryGroup {
   SEASONINGS
   SOUPS
   BROTH_BASE
+}
+
+enum LotActionType {
+  INBOUND   // 입고
+  OUTBOUND  // 출고
 }

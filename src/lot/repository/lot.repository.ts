@@ -16,7 +16,8 @@ export class LotTraceRepository {
             lot.inventory_id,
             lot.manufacture_date,
             lot.expiry_date,
-            lot.received_date
+            lot.received_date,
+            lot.action_type
         );
     }
 

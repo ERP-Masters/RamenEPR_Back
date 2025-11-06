@@ -1,3 +1,5 @@
+import { LotActionType } from "@prisma/client";
+
 export class LotEntity {
     constructor (
         public readonly id: number,
@@ -7,6 +9,7 @@ export class LotEntity {
         public readonly inventory_id: number,
         public readonly manufacture_date: Date,
         public readonly expiry_date: Date,
-        public readonly received_date: Date
+        public readonly received_date: Date,
+        public readonly action_type: LotActionType,
     ) {}
 }

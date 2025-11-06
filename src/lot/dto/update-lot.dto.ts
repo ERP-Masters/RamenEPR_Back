@@ -1,4 +1,5 @@
-import { IsInt, IsString, IsDate } from "class-validator";
+import { IsInt, IsString, IsDate, IsEnum } from "class-validator";
+import { LotActionType } from "@prisma/client";
 
 export class UpdateLotTraceDto { 
     @IsInt()
@@ -24,4 +25,7 @@ export class UpdateLotTraceDto {
 
     @IsDate()
     received_date: Date;
+
+    @IsEnum(LotActionType)
+    action_type: LotActionType;
 }

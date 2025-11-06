@@ -11,10 +11,10 @@ export class InventoryRepository {
   private loadEntity(inven: any): InventoryEntity {
     return new InventoryEntity(
       inven.id,
-      inven.inventory_id,
-      inven.warehouse_id,
-      inven.item_id,
-      inven.lot_id,
+      inven.inventory_id,                         // ERP용 식별자 (이건 문자열 그대로)
+      inven.warehouse?.name || inven.warehouse_id, // 창고 이름 반환
+      inven.item?.name || inven.item_id,           // 아이템 이름 반환
+      inven.lot_id,                                // LOT ID는 그대로 (문자열)
       inven.quantity,
       inven.safety_stock,
       inven.store_date,
@@ -246,7 +246,10 @@ export class InventoryRepository {
   async findByWarehouse(warehouseId: number) {
     const inv = await this.prisma.inventory.findMany({
       where: { warehouse_id: warehouseId },
-      include: { item: true },
+      include: {
+        warehouse: { select: { name: true } },
+        item: { select: { name: true } },
+      },
     });
     return inv.map((v) => this.loadEntity(v));
   }
@@ -262,23 +265,44 @@ export class InventoryRepository {
 
     const inv = await this.prisma.inventory.findMany({
       where: { warehouse_id: warehouse.id },
-      include: { item: true },
+      include: {
+        warehouse: { select: { name: true } },
+        item: { select: { name: true } },
+      },
     });
-
     return inv.map((v) => this.loadEntity(v));
   }
 
   async findLotsByItem(itemId: number) {
-    return this.prisma.lotTrace.findMany({
+    const lots = await this.prisma.lotTrace.findMany({
       where: { item_id: itemId },
       orderBy: { received_date: "desc" },
+      include: {
+        item: { select: { name: true } },
+        warehouse: { select: { name: true } },
+      },
     });
-  }
 
+    return lots.map((lot) => ({
+      id: lot.id,
+      lot_id: lot.lot_id,
+      item_name: lot.item?.name ?? "알 수 없음",
+      warehouse_name: lot.warehouse?.name ?? "알 수 없음",
+      manufacture_date: lot.manufacture_date,
+      expiry_date: lot.expiry_date,
+      received_date: lot.received_date,
+    }));
+  }
 
   async findAll(status?: string) {
     const where = status ? { status: status as InventoryStatus } : {};
-    const inv = await this.prisma.inventory.findMany({ where });
+    const inv = await this.prisma.inventory.findMany({
+      where,
+      include: {
+        warehouse: { select: { name: true } },
+        item: { select: { name: true } },
+      },
+    });
     return inv.map((v) => this.loadEntity(v));
   }
 }

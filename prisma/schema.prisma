@@ -96,6 +96,7 @@ model OrderRequest {
   item_id     Int
   quantity    Int
   status      OrderStatus
+  amount      Int         @default(0)
   created_at  DateTime    @default(now())
 
   branch   Branch    @relation(fields: [branch_id], references: [id])
@@ -111,7 +112,8 @@ model VendorOrder {
   vendor_id        Int
   item_id          Int
   quantity         Int
-  received_quantity Int           @default(0) // 누적 입고 수량
+  received_quantity Int      @default(0) // 누적 입고 수량
+  amount           Int       @default(0)  
   status           OrderStatus
   created_at       DateTime @default(now())
 

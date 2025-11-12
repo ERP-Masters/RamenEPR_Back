@@ -19,6 +19,7 @@ export class InventoryRepository {
       inven.safety_stock,
       inven.store_date,
       inven.expiry_date,
+      inven.action_type
     );
   }
 
@@ -158,7 +159,7 @@ export class InventoryRepository {
         data: {
           status: newStatus,
           received_quantity: {
-            increment: newlyReceivedQty, // ✅ 누적 업데이트
+            increment: newlyReceivedQty, // 누적 업데이트
           },
         },
       });

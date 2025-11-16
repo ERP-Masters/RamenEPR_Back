@@ -6,15 +6,15 @@ import { calcExpiryDate } from "../../policy/expiry.policy";
 
 @Injectable()
 export class InventoryRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   private loadEntity(inven: any): InventoryEntity {
     return new InventoryEntity(
       inven.id,
-      inven.inventory_id,                         // ERP용 식별자 (이건 문자열 그대로)
-      inven.warehouse?.name || inven.warehouse_id, // 창고 이름 반환
-      inven.item?.name || inven.item_id,           // 아이템 이름 반환
-      inven.lot_id,                                // LOT ID는 그대로 (문자열)
+      inven.inventory_id,                               // ERP용 식별자
+      inven.warehouse?.name || inven.warehouse_id,      // 창고 이름 또는 ID
+      inven.item?.name || inven.item_id,                // 품목 이름 또는 ID
+      inven.lot_id,                                     // LOT ID
       inven.quantity,
       inven.safety_stock,
       inven.store_date,
@@ -38,7 +38,7 @@ export class InventoryRepository {
   }
 
   /**
-   * 전체 입고 처리
+   * 전체 입고 처리 (발주와 무관한 수동 입고용)
    */
   async receive(
     warehouseId: number,
@@ -53,12 +53,15 @@ export class InventoryRepository {
       quantity,
       manufactureDate,
       expiryDate,
-      false,
     );
   }
 
   /**
-   * 부분 입고 처리
+   * 부분 입고 처리 (발주 연계)
+   * - orderId: 발주 ID
+   * - totalOrderedQty: 발주 총 수량
+   * - alreadyReceivedQty: 지금까지 누적 입고 수량
+   * - newlyReceivedQty: 이번에 추가로 입고할 수량
    */
   async receivePartial(
     orderId: number,
@@ -70,17 +73,18 @@ export class InventoryRepository {
     manufactureDate?: Date,
     expiryDate?: Date,
   ) {
-    console.log("🟡 [receivePartial] 호출됨:", {
-      orderId,
-      warehouseId,
-      itemId,
-      totalOrderedQty,
-      alreadyReceivedQty,
-      newlyReceivedQty,
-    });
-
     if (newlyReceivedQty <= 0) {
       throw new BadRequestException("입고 수량은 0보다 커야 합니다.");
+    }
+
+    const remaining = totalOrderedQty - alreadyReceivedQty;
+    if (remaining <= 0) {
+      throw new BadRequestException("이미 발주 수량 전체가 입고 처리되었습니다.");
+    }
+    if (newlyReceivedQty > remaining) {
+      throw new BadRequestException(
+        `입고 수량이 잔여 발주 수량을 초과합니다. (잔여: ${remaining}, 요청: ${newlyReceivedQty})`,
+      );
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -103,7 +107,7 @@ export class InventoryRepository {
 
       const lotId = await this.generateLotId(tx, item.item_id);
 
-      // 기존 재고 확인
+      // 기존 재고 확인 (같은 창고, 같은 품목, 같은 유통기한이면 합산)
       const existing = await tx.inventory.findFirst({
         where: {
           warehouse_id: warehouseId,
@@ -135,7 +139,7 @@ export class InventoryRepository {
         });
       }
 
-      // LOT 생성
+      // LOT 기록 생성
       await tx.lotTrace.create({
         data: {
           lot_id: lotId,
@@ -153,12 +157,13 @@ export class InventoryRepository {
           ? OrderStatus.COMPLETED
           : OrderStatus.PARTIALLY;
 
-      const updatedOrder = await tx.vendorOrder.update({
+      // 발주 상태 및 누적 입고 수량 갱신
+      await tx.vendorOrder.update({
         where: { id: orderId },
         data: {
           status: newStatus,
           received_quantity: {
-            increment: newlyReceivedQty, // 누적 업데이트
+            increment: newlyReceivedQty,
           },
         },
       });
@@ -172,13 +177,16 @@ export class InventoryRepository {
       };
     });
   }
+
+  /**
+   * 공통 입고 처리 로직 (발주와 무관한 순수 입고)
+   */
   private async _receiveInternal(
     warehouseId: number,
     itemId: number,
     quantity: number,
     manufactureDate?: Date,
     expiryDate?: Date,
-    isPartial?: boolean,
   ) {
     return this.prisma.$transaction(async (tx) => {
       const item = await tx.item.findUnique({
@@ -197,6 +205,7 @@ export class InventoryRepository {
 
       const lotId = await this.generateLotId(tx, item.item_id);
 
+      // 같은 창고/품목/유통기한 재고가 있으면 합산, 없으면 신규
       const existing = await tx.inventory.findFirst({
         where: {
           warehouse_id: warehouseId,

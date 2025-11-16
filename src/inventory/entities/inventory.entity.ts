@@ -11,6 +11,5 @@ export class InventoryEntity {
         public readonly safety_stock: number,
         public readonly store_date: Date,
         public readonly expiry_date: Date,
-        public readonly action_type: LotActionType,
     ) {}
 }

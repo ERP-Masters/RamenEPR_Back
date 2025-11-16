@@ -19,7 +19,6 @@ export class InventoryRepository {
       inven.safety_stock,
       inven.store_date,
       inven.expiry_date,
-      inven.action_type
     );
   }
 

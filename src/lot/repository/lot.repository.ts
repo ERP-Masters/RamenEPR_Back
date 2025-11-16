@@ -21,10 +21,5 @@ export class LotTraceRepository {
         );
     }
 
-    async findLotsByItem(itemId: number) {
-        return this.prisma.lotTrace.findMany({
-            where: { item_id: itemId },
-            orderBy: { received_date: "desc" },
-        });
-    }
+
 }

@@ -1,4 +1,4 @@
-import { InventoryStatus } from "@prisma/client";
+import { InventoryStatus, LotActionType } from "@prisma/client";
 
 export class InventoryEntity {
     constructor(

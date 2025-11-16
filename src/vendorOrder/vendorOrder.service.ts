@@ -75,6 +75,11 @@ export class VendorOrderService {
     // 전체입고 처리
     if (status === OrderStatus.COMPLETED) {
       await this.inventoryService.receiveStockFromOrder(updated);
+
+      await this.vendorOrderRepository.update(id, {
+        received_quantity: order.quantity,
+        status: OrderStatus.COMPLETED,
+      })
     }
 
     return updated;

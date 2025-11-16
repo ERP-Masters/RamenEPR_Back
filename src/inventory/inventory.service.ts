@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { InventoryRepository } from "./repository/inventory.repository";
 import { VendorOrderEntity } from "src/vendorOrder/entities/vendorOrder.entity";
 
@@ -8,10 +8,16 @@ export class InventoryService {
 
   /** 거래처 발주가 완료되었을 때 자동 입고 처리 */
   async receiveStockFromOrder(order: VendorOrderEntity | any) {
+    const remaining = order.quantity - order.received_quantity;
+
+    if(remaining <= 0){
+      return;
+    }
+    
     return this.inventoryRepo.receive(
       order.wh_id,
       order.item_id,
-      order.quantity,
+      remaining,
       new Date(),
       undefined,
     );

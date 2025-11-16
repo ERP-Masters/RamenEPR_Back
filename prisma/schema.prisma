@@ -95,9 +95,13 @@ model OrderRequest {
   branch_id   Int
   item_id     Int
   quantity    Int
-  status      OrderStatus
+  unit_price  Int         @default(0)//전산 기록용
   amount      Int         @default(0)
+  request_note String?    //발주 사유(공백이어도 됨)
+  status      OrderStatus
   created_at  DateTime    @default(now())
+  desired_due_date DateTime 
+
 
 
   branch   Branch    @relation(fields: [branch_id], references: [id])

@@ -134,7 +134,10 @@ model Shipment {
   id              Int            @id @default(autoincrement())
   shipment_id     String         @unique                        // ERP용
   order_id        Int            @unique
+  warehouse_id    Int
+  branch_id       Int  
   shipped_date    DateTime
+  due_date        DateTime
   delivery_status DeliveryStatus
 
   orderRequest OrderRequest @relation(fields: [order_id], references: [id])

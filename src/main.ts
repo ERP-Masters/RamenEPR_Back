@@ -5,12 +5,15 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-    // 전역 Validation Pipe
+  // 전역 Validation Pipe
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,            // DTO에 없는 값은 자동 제거
       forbidNonWhitelisted: true, // DTO에 정의 안된 값 들어오면 에러
       transform: true,            // 타입 자동 변환 (string -> number 등)
+      transformOptions: {
+        enableImplicitConversion: true,   // ← 문자열 → Date 허용
+      },
     }),
   );
 

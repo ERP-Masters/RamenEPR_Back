@@ -6,7 +6,7 @@ import { calcExpiryDate } from "../../policy/expiry.policy";
 
 @Injectable()
 export class InventoryRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   private loadEntity(inven: any): InventoryEntity {
     return new InventoryEntity(
@@ -22,19 +22,90 @@ export class InventoryRepository {
     );
   }
 
-  private async generateInventoryId(tx: any): Promise<string> {
-    const count = await tx.inventory.count();
-    return `INV_${(count + 1).toString().padStart(4, "0")}`;
+  private async generateInventoryId(
+    tx: any,
+    warehouseId: number,
+    itemId: number
+  ): Promise<string> {
+
+    // 1. 창고 코드 조회
+    const warehouse = await tx.warehouse.findUnique({
+      where: { id: warehouseId },
+      select: { warehouse_id: true },
+    });
+
+    // 2. 아이템 코드 조회
+    const item = await tx.item.findUnique({
+      where: { id: itemId },
+      select: { item_id: true },
+    });
+
+    if (!warehouse || !item) {
+      throw new Error("warehouse 또는 item 정보를 불러올 수 없습니다.");
+    }
+
+    // 3. 모든 언더바 제거
+    const whCodeRaw = warehouse.warehouse_id.replace(/_/g, ""); // WH010
+    const itemCodeRaw = item.item_id.replace(/_/g, "");         // ITEM0004
+
+    // 4. prefix 제거 (WH / ITEM)
+    const whCode = whCodeRaw.replace(/^WH/i, "");               // 010
+    const itemCode = itemCodeRaw.replace(/^IT/i, "");         // 0004
+
+    // 5. 동일 (창고 + 아이템 기준 시퀀스)
+    const seq = await tx.inventory.count({
+      where: {
+        warehouse_id: warehouseId,
+        item_id: itemId,
+      },
+    });
+
+    const padded = (seq + 1).toString().padStart(4, "0");
+
+    return `INV_${whCode}_${itemCode}_${padded}`;
   }
 
-  private async generateLotId(tx: any, itemCode: string): Promise<string> {
+
+
+  private async generateLotId(
+    tx: any,
+    warehouseId: number,
+    itemId: number
+  ): Promise<string> {
+
+    // 1. 창고 코드 조회
+    const warehouse = await tx.warehouse.findUnique({
+      where: { id: warehouseId },
+      select: { warehouse_id: true },
+    });
+
+    // 2. 아이템 코드 조회
+    const item = await tx.item.findUnique({
+      where: { id: itemId },
+      select: { item_id: true },
+    });
+
+    if (!warehouse || !item) {
+      throw new Error("warehouse 또는 item 정보를 불러올 수 없습니다.");
+    }
+
+    const whRaw = warehouse.warehouse_id.replace(/_/g, "");   // WH001
+    const itemRaw = item.item_id.replace(/_/g, "");           // IT1000
+
+    const whCode = whRaw.replace(/^WH/i, "");                 // 001
+    const itemCode = itemRaw.replace(/^IT/i, "");           // 1000
+
     const now = new Date();
     const yymmdd = now.toISOString().slice(2, 10).replace(/-/g, "");
-    const prefix = `LOT_${itemCode}_${yymmdd}_`;
+
+    const prefix = `LOT_${whCode}_${itemCode}_${yymmdd}_`;
     const seq = await tx.lotTrace.count({
       where: { lot_id: { startsWith: prefix } },
     });
-    return `${prefix}${(seq + 1).toString().padStart(4, "0")}`;
+
+    const padded = (seq + 1).toString().padStart(4, "0");
+
+    return `${prefix}${padded}`;
   }
 
   /**
@@ -101,11 +172,12 @@ export class InventoryRepository {
         throw new Error(`Item ${itemId} not found`);
       }
 
+      
       const storeDate = new Date();
       const effExpiry =
         expiryDate ?? calcExpiryDate(item.category.group as CategoryGroup, storeDate);
 
-      const lotId = await this.generateLotId(tx, item.item_id);
+      const lotId = await this.generateLotId(tx, warehouseId, itemId);
 
       // 기존 재고 확인 (같은 창고, 같은 품목, 같은 유통기한이면 합산)
       const existing = await tx.inventory.findFirst({
@@ -123,7 +195,7 @@ export class InventoryRepository {
           data: { quantity: existing.quantity + newlyReceivedQty },
         });
       } else {
-        const inventory_id = await this.generateInventoryId(tx);
+        const inventory_id = await this.generateInventoryId(tx, warehouseId, itemId);
         inv = await tx.inventory.create({
           data: {
             inventory_id,
@@ -203,7 +275,7 @@ export class InventoryRepository {
       const effExpiry =
         expiryDate ?? calcExpiryDate(item.category.group as CategoryGroup, storeDate);
 
-      const lotId = await this.generateLotId(tx, item.item_id);
+      const lotId = await this.generateLotId(tx, warehouseId, itemId);
 
       // 같은 창고/품목/유통기한 재고가 있으면 합산, 없으면 신규
       const existing = await tx.inventory.findFirst({
@@ -221,7 +293,7 @@ export class InventoryRepository {
           data: { quantity: existing.quantity + quantity },
         });
       } else {
-        const inventory_id = await this.generateInventoryId(tx);
+        const inventory_id = await this.generateInventoryId(tx, warehouseId, itemId);
         inv = await tx.inventory.create({
           data: {
             inventory_id,

@@ -10,6 +10,7 @@ export class LotEntity {
         public readonly manufacture_date: Date,
         public readonly expiry_date: Date,
         public readonly received_date: Date,
+        public readonly shipment_id: number,
         public readonly action_type: LotActionType,
     ) {}
 }

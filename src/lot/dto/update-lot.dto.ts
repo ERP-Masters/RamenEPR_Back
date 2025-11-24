@@ -26,6 +26,9 @@ export class UpdateLotTraceDto {
     @IsDate()
     received_date: Date;
 
+    @IsInt()
+    Shipment_id: Date;
+
     @IsEnum(LotActionType)
     action_type: LotActionType;
 }

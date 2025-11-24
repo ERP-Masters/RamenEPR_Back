@@ -11,11 +11,13 @@ import { BranchModule } from './branch/branch.module';
 import { VendorOrderModule } from './vendorOrder/vendorOrder.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { BranchRequestModule } from './branch-request/branch-request.module';
+import { LotTraceModule } from './lot/lot.module';
 
 @Module({
   imports: [ PrismaModule, VendorModule, CategoryModule,
     UnitModule, ItemModule, WarehouseModule, BranchModule,
-    VendorOrderModule, InventoryModule, BranchRequestModule
+    VendorOrderModule, InventoryModule, BranchRequestModule,
+    LotTraceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

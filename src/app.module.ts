@@ -17,7 +17,7 @@ import { LotTraceModule } from './lot/lot.module';
   imports: [ PrismaModule, VendorModule, CategoryModule,
     UnitModule, ItemModule, WarehouseModule, BranchModule,
     VendorOrderModule, InventoryModule, BranchRequestModule,
-    LotTraceModule
+    LotTraceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

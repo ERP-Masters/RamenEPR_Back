@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { BranchRequestRepository } from "./repository/branch-request.repository";
 import { CreateBranchRequestDto } from "./dto/create-branch-request.dto";
 import { UpdateBranchRequestDto } from "./dto/update-branch-request.dto";
@@ -6,41 +6,41 @@ import { OrderStatus } from "@prisma/client";
 
 @Injectable()
 export class BranchRequestService {
-    constructor(private readonly BranchRequestRepo: BranchRequestRepository) {}
+    constructor(private readonly repo: BranchRequestRepository) { }
 
     async create(dto: CreateBranchRequestDto) {
-        return this.BranchRequestRepo.create(dto);
+        return this.repo.create(dto);
     }
 
     async findAll() {
-        return this.BranchRequestRepo.findAll();
+        return this.repo.findAll();
     }
 
     async findById(id: number) {
-        return this.BranchRequestRepo.findById(id);
+        return this.repo.findById(id);
     }
 
-    async findByPeriod(start: Date, end: Date) {
-        return this.BranchRequestRepo.findByPeriod(start, end);
+    async findByPeriod(s: Date, e: Date) {
+        return this.repo.findByPeriod(s, e);
     }
 
     async findByBranch(id: number) {
-        return this.BranchRequestRepo.findByBranch(id);
+        return this.repo.findByBranch(id);
     }
 
-    async findByBranchName(name: string){
-        return this.BranchRequestRepo.findByBranchName(name);
+    async findByBranchName(name: string) {
+        return this.repo.findByBranchName(name);
     }
 
     async findByStatus(status: OrderStatus) {
-        return this.BranchRequestRepo.findByStatus(status);
+        return this.repo.findByStatus(status);
     }
 
-    async update(id: number, dto:UpdateBranchRequestDto) {
-        return this.BranchRequestRepo.update(id, dto);
+    async update(id: number, dto: UpdateBranchRequestDto) {
+        return this.repo.update(id, dto);
     }
 
     async cancel(id: number) {
-        return this.BranchRequestRepo.cancel(id);
+        return this.repo.cancel(id);
     }
 }

@@ -172,7 +172,7 @@ export class InventoryRepository {
         throw new Error(`Item ${itemId} not found`);
       }
 
-      
+
       const storeDate = new Date();
       const effExpiry =
         expiryDate ?? calcExpiryDate(item.category.group as CategoryGroup, storeDate);
@@ -326,7 +326,10 @@ export class InventoryRepository {
 
   async findByWarehouse(warehouseId: number) {
     const inv = await this.prisma.inventory.findMany({
-      where: { warehouse_id: warehouseId },
+      where: {
+        warehouse_id: warehouseId,
+        quantity: { gt: 0 },
+      },
       include: {
         warehouse: { select: { name: true } },
         item: { select: { name: true } },
@@ -345,7 +348,10 @@ export class InventoryRepository {
     }
 
     const inv = await this.prisma.inventory.findMany({
-      where: { warehouse_id: warehouse.id },
+      where: {
+        warehouse_id: warehouse.id,
+        quantity: { gt: 0 },
+      },
       include: {
         warehouse: { select: { name: true } },
         item: { select: { name: true } },
@@ -376,7 +382,11 @@ export class InventoryRepository {
   }
 
   async findAll(status?: string) {
-    const where = status ? { status: status as InventoryStatus } : {};
+    const where: any = {
+      quantity: { gt: 0 },   // ★ 기본적으로 재고 있는 LOT만 보여줌
+    };
+
+    if (status) where.status = status as InventoryStatus;
     const inv = await this.prisma.inventory.findMany({
       where,
       include: {

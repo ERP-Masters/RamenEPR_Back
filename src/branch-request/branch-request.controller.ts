@@ -15,7 +15,7 @@ import { OrderStatus } from "@prisma/client";
 
 @Controller("branch-order")
 export class BranchRequestController {
-  constructor(private readonly service: BranchRequestService) {}
+  constructor(private readonly service: BranchRequestService) { }
 
   @Post()
   async create(@Body() dto: CreateBranchRequestDto) {
@@ -27,21 +27,13 @@ export class BranchRequestController {
     return await this.service.findAll();
   }
 
-  /** 기간별 조회 */
   @Get("period")
-  async findByPeriod(
-    @Query("start") start: string,
-    @Query("end") end: string,
-  ) {
+  async findByPeriod(@Query("start") start: string, @Query("end") end: string) {
     const s = new Date(start);
     const e = new Date(end);
-
     if (isNaN(s.getTime()) || isNaN(e.getTime())) {
-      throw new BadRequestException(
-        "날짜 형식이 잘못되었습니다. YYYY-MM-DD 형식 사용",
-      );
+      throw new BadRequestException("날짜 형식 오류 (YYYY-MM-DD)");
     }
-
     return await this.service.findByPeriod(s, e);
   }
 
@@ -50,34 +42,28 @@ export class BranchRequestController {
     return await this.service.findById(+id);
   }
 
-  /** 지점 ID 조회 */
   @Get("branch/:branchId")
-  async findByBranch(@Param("branchId") branchId: string) {
-    return await this.service.findByBranch(+branchId);
+  async findByBranch(@Param("branchId") id: string) {
+    return await this.service.findByBranch(+id);
   }
 
-  /** 지점 이름 조회 */
   @Get("branch/name/:name")
   async findByBranchName(@Param("name") name: string) {
     return await this.service.findByBranchName(name);
   }
 
-  /** 상태별 조회 */
   @Get("status/:status")
   async findByStatus(@Param("status") status: OrderStatus) {
     return await this.service.findByStatus(status);
   }
 
   @Patch(":id")
-  async update(
-    @Param("id") id: string,
-    @Body() dto: UpdateBranchRequestDto,
-  ) {
+  async update(@Param("id") id: string, @Body() dto: UpdateBranchRequestDto) {
     return await this.service.update(+id, dto);
   }
 
   @Patch(":id/cancel")
-  async cancel(@Param("id") id: string) {
+  async cancel(@Param("id") id: number) {
     return await this.service.cancel(+id);
   }
 }

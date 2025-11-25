@@ -54,12 +54,12 @@ export class LotTraceController {
 
      @Get("available")
     async findAvailableLots(
-        @Query("itemId") itemId: string,
-        @Query("warehouseId") warehouseId?: string
+        @Query("itemId") itemId: number,
+        @Query("warehouseId") warehouseId?: number
     ) {
         return this.service.findAvailableLots(
-            Number(itemId),
-            warehouseId ? Number(warehouseId) : undefined
+            itemId,
+            warehouseId,
         );
     }
 

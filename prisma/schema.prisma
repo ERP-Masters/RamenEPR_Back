@@ -66,8 +66,8 @@ model Item {
   expiry_date DateTime
   created_at  DateTime @default(now())
 
+  orderRequestItems OrderRequestItem[]   // 추가
   inventory    Inventory[]
-  orderRequest OrderRequest[]
   vendorOrders VendorOrder[]
   lotTraces    LotTrace[]
 
@@ -90,23 +90,32 @@ model Unit {
 
 /// 지점 발주
 model OrderRequest {
-  id          Int         @id @default(autoincrement())
-  order_id    String      @unique                         // ERP용 (예: "OR-0001")
+  id          Int       @id @default(autoincrement())
+  order_id    String    @unique
   branch_id   Int
-  item_id     Int
-  quantity    Int
-  unit_price  Int         @default(0)//전산 기록용
-  amount      Int         @default(0)
-  request_note String?    //발주 사유(공백이어도 됨)
+  request_note String?
   status      OrderStatus
-  created_at  DateTime    @default(now())
-  desired_due_date DateTime 
-
-
+  created_at  DateTime  @default(now())
+  desired_due_date DateTime
 
   branch   Branch    @relation(fields: [branch_id], references: [id])
-  item     Item      @relation(fields: [item_id], references: [id])
-  shipment Shipment?
+
+  items    OrderRequestItem[] 
+  shipment Shipment[]
+}
+
+model OrderRequestItem {
+  id            Int     @id @default(autoincrement())
+  request_id    Int
+  item_id       Int
+  quantity      Int
+  unit_price    Int     @default(0)
+  amount        Int     @default(0)
+
+  request OrderRequest @relation(fields: [request_id], references: [id])
+  item    Item         @relation(fields: [item_id], references: [id])
+
+  @@index([request_id])
 }
 
 /// 거래처 발주
@@ -133,7 +142,7 @@ model VendorOrder {
 model Shipment {
   id              Int            @id @default(autoincrement())
   shipment_id     String         @unique                        // ERP용
-  order_id        Int            @unique
+  order_id        Int           
   warehouse_id    Int
   branch_id       Int  
   shipped_date    DateTime

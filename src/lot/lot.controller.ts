@@ -84,6 +84,16 @@ export class LotTraceController {
         return this.service.findExpired();
     }
 
+    @Get('inbound')
+    async findInboundLot() {
+      return this.service.findInboundLot();
+    }
+
+    @Get('outbound')
+    async findOutboundLot() {
+      return this.service.findOutboundLot();
+    }
+
     @Patch(":lotId")
     async updateLot(
         @Param("lotId") lotId: string,

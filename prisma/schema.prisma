@@ -15,6 +15,12 @@ generator erd {
 
 //
 // MODELS
+model login {
+  id        Int       @id @defalut(autoincrement())
+  userId    String    @unique
+  userPw    String
+ role         Role
+}
 //
 
 /// 창고

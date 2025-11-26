@@ -15,6 +15,12 @@ generator erd {
 
 //
 // MODELS
+model login {
+  id        Int       @id @defalut(autoincrement())
+  userId    String    @unique
+  userPw    String
+ role         Role
+}
 //
 
 /// 창고
@@ -327,4 +333,10 @@ enum CategoryGroup {
 enum LotActionType {
   INBOUND   // 입고
   OUTBOUND  // 출고
+}
+
+enum Role {
+ ADMIN
+ CEO
+ STAFF
 }

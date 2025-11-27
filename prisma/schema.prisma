@@ -13,16 +13,6 @@ generator erd {
   theme    = "dark"
 }
 
-//
-// MODELS
-model login {
-  id        Int       @id @defalut(autoincrement())
-  userId    String    @unique
-  userPw    String
- role         Role
-}
-//
-
 /// 창고
 model Warehouse {
   id            Int      @id @default(autoincrement())   // 내부 DB PK

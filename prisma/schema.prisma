@@ -13,10 +13,6 @@ generator erd {
   theme    = "dark"
 }
 
-//
-// MODELS
-//
-
 /// 창고
 model Warehouse {
   id            Int      @id @default(autoincrement())   // 내부 DB PK
@@ -270,6 +266,27 @@ model Delivery {
   shipment Shipment @relation(fields: [shipment_id], references: [id])
 }
 
+model Notice {
+  id          Int       @id @default(autoincrement())
+  title       String
+  content     String
+  author_id   Int
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  is_pinned   Boolean   @default(false)
+
+  author Login @relation(fields: [author_id], references: [id])
+}
+
+model Login {
+  id        Int       @id @default(autoincrement())
+  userId    String    @unique
+  userPw    String
+  role      Role
+
+  notices   Notice[]
+}
+
 //
 // ENUMS
 //
@@ -327,4 +344,10 @@ enum CategoryGroup {
 enum LotActionType {
   INBOUND   // 입고
   OUTBOUND  // 출고
+}
+
+enum Role {
+ ADMIN
+ CEO
+ STAFF
 }

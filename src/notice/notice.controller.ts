@@ -18,17 +18,17 @@ export class NoticeController {
   }
 
   @Get(":id")
-  findById(@Param("id") id: string) {
+  findById(@Param("id") id: number) {
     return this.service.findById(+id);
   }
 
   @Patch(":id")
-  update(@Param("id") id: string, @Body() dto: UpdateNoticeDto) {
+  update(@Param("id") id: number, @Body() dto: UpdateNoticeDto) {
     return this.service.update(+id, dto);
   }
 
   @Delete(":id")
-  delete(@Param("id") id: string) {
+  delete(@Param("id") id: number) {
     return this.service.remove(+id);
   }
 }

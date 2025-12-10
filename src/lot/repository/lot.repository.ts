@@ -27,8 +27,8 @@ export class LotTraceRepository {
       ...entity,
       item_name: lot.item?.name ?? null,
       warehouse_name: lot.warehouse?.name ?? null,
-      inventory_code: lot.inventory?.inventory_code ?? null,
-      shipment_code: lot.shipment?.shipment_code ?? null,
+      inventory_code: lot.inventory?.inventory_id ?? null,
+      shipment_code: lot.shipment?.shipment_id ?? null,
     };
   }
 

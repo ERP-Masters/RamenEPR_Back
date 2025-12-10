@@ -23,7 +23,6 @@ export class AuthService {
     return {
       id: user.id,
       userId: user.userId,
-      role: user.role,
     };
   }
 
@@ -38,7 +37,6 @@ export class AuthService {
     const payload = {
       sub: validated.id,
       userId: validated.userId,
-      role: validated.role,
     };
 
     const token = await this.jwtService.signAsync(payload);

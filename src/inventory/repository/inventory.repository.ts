@@ -203,7 +203,7 @@ export class InventoryRepository {
             item_id: itemId,
             lot_id: lotId,
             quantity: newlyReceivedQty,
-            safety_stock: 0,
+            safety_stock: 100,
             store_date: storeDate,
             expiry_date: effExpiry,
             status: InventoryStatus.NORMAL,

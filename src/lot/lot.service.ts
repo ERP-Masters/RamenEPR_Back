@@ -44,6 +44,14 @@ export class LotTraceService {
         return this.LotRepository.findExpired();
     }
 
+    async findInboundLot() {
+        return this.LotRepository.findInboundLot();
+    }
+
+    async findOutboundLot() {
+        return this.LotRepository.findOutboundLot();
+    }
+
     async updateLot(lotId: string, dto: UpdateLotTraceDto) {
         return this.LotRepository.updateLot(lotId, dto);
     }

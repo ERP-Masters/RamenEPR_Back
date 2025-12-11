@@ -13,12 +13,15 @@ import { InventoryModule } from './inventory/inventory.module';
 import { BranchRequestModule } from './branch-request/branch-request.module';
 import { LotTraceModule } from './lot/lot.module';
 import { ShipmentModule } from './shipment/shipment.moudule';
-
+import { NoticeModule } from './notice/notice.module';
+import { AuthModule } from './auth/auth.module';
+import { ForecastModule } from './forecast/forecast.module';
 @Module({
   imports: [ PrismaModule, VendorModule, CategoryModule,
     UnitModule, ItemModule, WarehouseModule, BranchModule,
     VendorOrderModule, InventoryModule, BranchRequestModule,
-    LotTraceModule, ShipmentModule,
+    LotTraceModule, ShipmentModule, NoticeModule,
+    AuthModule, ForecastModule
   ],
   controllers: [AppController],
   providers: [AppService],
